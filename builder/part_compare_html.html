@@ -1,0 +1,446 @@
+        <!-- ==================== MODE 1: OVERLAY COMPARE ==================== -->
+        <div id="mode-container-compare" class="flex-1 hidden flex-col min-h-0 w-full h-full bg-slate-100 dark:bg-slate-900 select-none overflow-hidden">
+            
+            <!-- VIEW 1: UPLOAD & SETUP -->
+            <div id="view-setup" class="w-full h-full overflow-y-auto flex flex-col items-center p-4 sm:p-6 animate-fade-in">
+                <div class="w-full max-w-5xl space-y-6">
+                
+                <!-- Top Return Bar -->
+                <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-700">
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-slate-800 dark:text-white text-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-code-compare text-sky-600"></i> Overlay Compare Studio
+                        </span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Bluebeam Revu Workflow</span>
+                    </div>
+                    <button onclick="switchAppMode('viewer')" class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 text-xs font-semibold shadow-xs transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>Return to Document Viewer</span>
+                    </button>
+                </div>
+
+                <!-- Steps breadcrumb -->
+                <div class="flex justify-center items-center space-x-4 text-xs font-bold text-slate-500 mb-2">
+                    <span class="text-sky-600 flex items-center"><i class="fa-solid fa-circle-1 mr-1.5"></i> Select Drawings & Colors</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                    <span class="flex items-center text-slate-400"><i class="fa-solid fa-circle-2 mr-1.5"></i> Calibrate / Align</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                    <span class="flex items-center text-slate-400"><i class="fa-solid fa-circle-3 mr-1.5"></i> Review & Export</span>
+                </div>
+
+                <!-- PDF 1 & PDF 2 Upload Cards with Unified Layer Colors -->
+                <div class="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 items-center">
+                    <!-- PDF 1 (Original / Revision A) -->
+                    <div class="revu-card p-6 border-slate-200 bg-white text-slate-800 shadow-sm relative" id="card-pdf-1">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center">
+                                <i class="fa-solid fa-file-contract mr-1.5 text-red-500"></i> Document 1 (Original)
+                            </span>
+                            <div class="flex items-center space-x-2">
+                                <label class="text-[11px] font-semibold text-slate-500">Layer Color:</label>
+                                <input type="color" id="color-picker-1" value="#ef4444" class="w-7 h-7 rounded-lg border border-slate-300 cursor-pointer bg-transparent" onchange="updateDocColor('pdf1', this.value)" title="Choose Layer 1 Color">
+                                <span id="color-label-1" class="text-xs font-mono font-bold text-red-600">#EF4444</span>
+                            </div>
+                        </div>
+
+                        <div class="upload-card bg-slate-50/70 rounded-xl border-2 border-dashed border-slate-300 p-6 text-center relative cursor-pointer hover:border-sky-500 hover:bg-sky-50/30" id="dropzone-1">
+                            <input type="file" id="file-1" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept="application/pdf">
+                            <div class="space-y-2 pointer-events-none" id="ui-empty-1">
+                                <div class="mx-auto w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500 mb-2 border border-red-200">
+                                    <i class="fa-regular fa-file-pdf text-2xl"></i>
+                                </div>
+                                <h3 class="font-bold text-base text-slate-800">Original / Previous Revision</h3>
+                                <p class="text-xs text-slate-500">Drop PDF here or click to browse</p>
+                            </div>
+                            <div class="hidden space-y-2 pointer-events-none" id="ui-filled-1">
+                                <i class="fa-solid fa-circle-check text-emerald-500 text-3xl mb-1"></i>
+                                <h3 class="font-bold text-slate-800 truncate px-3 text-sm" id="filename-1">filename.pdf</h3>
+                                <p class="text-xs text-slate-500"><span id="filesize-1">0 MB</span> â€¢ <span id="filepages-1">0</span> Pages</p>
+                                <span class="inline-flex items-center text-[11px] font-semibold text-red-700 bg-red-50 px-2.5 py-1 rounded-full border border-red-200 mt-1">
+                                    <span class="w-2 h-2 rounded-full bg-red-500 mr-1.5"></span> Base layer will render in <span id="color-text-1" class="ml-1 uppercase font-bold">RED</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Swap Button in Middle -->
+                    <div class="flex justify-center items-center">
+                        <button onclick="swapDocuments()" title="Swap Document 1 and Document 2" class="w-11 h-11 rounded-full bg-white border border-slate-300 hover:border-sky-500 hover:bg-sky-50 text-slate-600 hover:text-sky-600 shadow-md flex items-center justify-center transition transform hover:rotate-180">
+                            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                        </button>
+                    </div>
+
+                    <!-- PDF 2 (New / Revision B) -->
+                    <div class="revu-card p-6 border-slate-200 bg-white text-slate-800 shadow-sm relative" id="card-pdf-2">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center">
+                                <i class="fa-solid fa-file-circle-check mr-1.5 text-emerald-600"></i> Document 2 (Revision)
+                            </span>
+                            <div class="flex items-center space-x-2">
+                                <label class="text-[11px] font-semibold text-slate-500">Layer Color:</label>
+                                <input type="color" id="color-picker-2" value="#10b981" class="w-7 h-7 rounded-lg border border-slate-300 cursor-pointer bg-transparent" onchange="updateDocColor('pdf2', this.value)" title="Choose Layer 2 Color">
+                                <span id="color-label-2" class="text-xs font-mono font-bold text-emerald-600">#10B981</span>
+                            </div>
+                        </div>
+
+                        <div class="upload-card bg-slate-50/70 rounded-xl border-2 border-dashed border-slate-300 p-6 text-center relative cursor-pointer hover:border-sky-500 hover:bg-sky-50/30" id="dropzone-2">
+                            <input type="file" id="file-2" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept="application/pdf">
+                            <div class="space-y-2 pointer-events-none" id="ui-empty-2">
+                                <div class="mx-auto w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600 mb-2 border border-emerald-200">
+                                    <i class="fa-regular fa-file-pdf text-2xl"></i>
+                                </div>
+                                <h3 class="font-bold text-base text-slate-800">New / Current Revision</h3>
+                                <p class="text-xs text-slate-500">Drop PDF here or click to browse</p>
+                            </div>
+                            <div class="hidden space-y-2 pointer-events-none" id="ui-filled-2">
+                                <i class="fa-solid fa-circle-check text-emerald-500 text-3xl mb-1"></i>
+                                <h3 class="font-bold text-slate-800 truncate px-3 text-sm" id="filename-2">filename.pdf</h3>
+                                <p class="text-xs text-slate-500"><span id="filesize-2">0 MB</span> â€¢ <span id="filepages-2">0</span> Pages</p>
+                                <span class="inline-flex items-center text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 mt-1">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span> Revision layer will render in <span id="color-text-2" class="ml-1 uppercase font-bold">GREEN</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison & Vector Color Settings -->
+                <div class="revu-card p-6 border-slate-200 bg-white text-slate-800 shadow-sm space-y-5">
+                    <div class="flex flex-wrap justify-between items-center pb-3 border-b border-slate-100 gap-2">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-sliders text-sky-600"></i>
+                            <h3 class="font-bold text-sm text-slate-800">Overlay & Engine Settings</h3>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">Bluebeam Revu Compatible</span>
+                        </div>
+                        
+                        <!-- Quick Color Palettes -->
+                        <div class="flex items-center space-x-1.5 text-xs">
+                            <span class="text-slate-500 font-semibold mr-1">Palettes:</span>
+                            <button onclick="applyColorPreset('#ef4444', '#10b981')" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 text-[11px] font-semibold text-slate-700 transition" title="Classic Bluebeam Red & Green">
+                                <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500 mr-1"></span><span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 mr-1"></span> Red/Green
+                            </button>
+                            <button onclick="applyColorPreset('#ef4444', '#06b6d4')" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 text-[11px] font-semibold text-slate-700 transition" title="AEC Standard Red & Cyan">
+                                <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500 mr-1"></span><span class="inline-block w-2.5 h-2.5 rounded-full bg-cyan-400 mr-1"></span> Red/Cyan
+                            </button>
+                            <button onclick="applyColorPreset('#3b82f6', '#f97316')" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 text-[11px] font-semibold text-slate-700 transition" title="High Contrast Blue & Orange">
+                                <span class="inline-block w-2.5 h-2.5 rounded-full bg-blue-500 mr-1"></span><span class="inline-block w-2.5 h-2.5 rounded-full bg-orange-500 mr-1"></span> Blue/Orange
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                        <!-- Overlay With / Without Markups Mode (Bluebeam Revu Style) -->
+                        <div class="lg:col-span-2 bg-slate-50/80 dark:bg-slate-800/80 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-800 dark:text-white flex items-center">
+                                    <i class="fa-solid fa-layer-group text-sky-600 mr-1.5"></i> Overlay Content Mode:
+                                </span>
+                                <span id="badge-markups-mode" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">With Markups Included</span>
+                            </div>
+                            <!-- Segmented Toggle -->
+                            <div class="grid grid-cols-2 gap-2 p-1 bg-slate-200/70 dark:bg-slate-700/60 rounded-xl">
+                                <button type="button" id="btn-mode-with-markups" onclick="setOverlayMarkupsOption(true)" class="py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 bg-white dark:bg-slate-800 text-sky-600 dark:text-sky-400 shadow-sm border border-slate-200 dark:border-slate-600">
+                                    <i class="fa-solid fa-stamp"></i>
+                                    <span>With Markups & Annotations</span>
+                                </button>
+                                <button type="button" id="btn-mode-without-markups" onclick="setOverlayMarkupsOption(false)" class="py-2 px-3 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-drafting-compass"></i>
+                                    <span>Without Markups (Base CAD Only)</span>
+                                </button>
+                            </div>
+                            <!-- Hidden input for backwards compatibility -->
+                            <input type="checkbox" id="setting-markups" checked class="hidden">
+                            <p id="desc-markups-mode" class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
+                                <i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i>
+                                Compares base CAD vectors plus all revision clouds, callouts, text boxes, stamps, and user annotations.
+                            </p>
+                            <div class="flex items-center space-x-2 pt-1 border-t border-slate-200 dark:border-slate-700/60">
+                                <label class="text-[11px] font-medium text-slate-600 dark:text-slate-300">Markup Recoloring Style:</label>
+                                <select id="setting-markup-mode" class="flex-grow bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 text-xs rounded-lg p-1.5 focus:ring-sky-500">
+                                    <option value="solid" selected>Solid Unified Color (Zero Stray Colors)</option>
+                                    <option value="tonal">Tonal Grayscale Tint (Proportional Shades)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Safe Large PDF Resolution Clamping -->
+                        <div class="bg-slate-50/80 p-3.5 rounded-xl border border-slate-200 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-xs font-bold text-slate-800">Large PDF Shield</label>
+                                <i class="fa-solid fa-shield-halved text-sky-600 text-xs"></i>
+                            </div>
+                            <select id="setting-render-quality" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 focus:ring-sky-500 focus:border-sky-500">
+                                <option value="balanced" selected>Balanced Safe (Arch D/E - 2400px)</option>
+                                <option value="high">High Quality (Detailed - 2800px)</option>
+                                <option value="ultra">Ultra Sharp (CAD Detail - 3400px)</option>
+                                <option value="performance">Fast Mode (Small Plans - 1600px)</option>
+                            </select>
+                            <p class="text-[10px] text-slate-500 leading-tight">Dynamic scaling prevents tab crash & blank rendering on large sheets.</p>
+                        </div>
+
+                        <!-- Alignment Mode -->
+                        <div class="bg-slate-50/80 p-3.5 rounded-xl border border-slate-200 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-xs font-bold text-slate-800">Alignment Calibration</label>
+                                <i class="fa-solid fa-compass-drafting text-sky-600 text-xs"></i>
+                            </div>
+                            <select id="setting-align" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 focus:ring-sky-500 focus:border-sky-500">
+                                <option value="center" selected>Center Alignment (Default)</option>
+                                <option value="topleft">Top Left Corner</option>
+                                <option value="3point">Manual 3-Point Calibration</option>
+                            </select>
+                            <p class="text-[10px] text-slate-500 leading-tight">Use 3-point calibration if drawings have shifted origin or scale.</p>
+                        </div>
+                    </div>
+
+                    <!-- Page Ranges Input Row -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Doc 1 Page Range (Original)</label>
+                            <input type="text" id="setting-range-1" placeholder="e.g. 1-5, 8 (blank for all)" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 focus:ring-sky-500 focus:border-sky-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Doc 2 Page Range (Revision)</label>
+                            <input type="text" id="setting-range-2" placeholder="e.g. 1-5, 8 (blank for all)" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 focus:ring-sky-500 focus:border-sky-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Launch Comparison Button -->
+                <div class="text-center pt-2">
+                    <button onclick="initiateComparison()" id="btn-compare" class="bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-extrabold py-3.5 px-10 rounded-xl shadow-lg shadow-sky-600/20 transition transform hover:-translate-y-0.5 active:translate-y-0 text-base inline-flex items-center justify-center">
+                        <i class="fa-solid fa-layer-group mr-2.5"></i> Generate Revision Overlay
+                    </button>
+                    <p class="text-[11px] text-slate-500 mt-2">All computations run locally on device â€¢ No drawing data is transmitted</p>
+                </div>
+            </div>
+            </div>
+
+            <!-- VIEW 1.5: 3-POINT WIZARD -->
+            <div id="view-wizard" class="w-full h-full flex-1 hidden flex-col min-h-0 p-2 sm:p-3 animate-fade-in">
+                <div class="mb-2 flex justify-between items-center relative bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs flex-none">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900 dark:text-white" id="wiz-title">Step 1/2: Original Document</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium" id="wiz-desc">Click 3 distinct reference points on the drawing. Drag to pan.</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="flex bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-1 items-center space-x-1">
+                            <button onclick="adjustWizardZoom(0.8)" class="px-2 py-1 text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-600 rounded text-xs transition" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
+                            <button onclick="resetWizardTransform()" class="px-2 py-1 text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-600 rounded text-xs font-bold transition">FIT</button>
+                            <button onclick="adjustWizardZoom(1.25)" class="px-2 py-1 text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-600 rounded text-xs transition" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                        <button onclick="resetApp()" class="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/60 dark:text-red-400 border border-red-200 dark:border-red-800 text-xs font-bold transition"><i class="fa-solid fa-xmark mr-1"></i> Cancel</button>
+                    </div>
+                </div>
+                <div class="flex-1 w-full h-full rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-900 flex justify-center items-center canvas-container relative shadow-inner min-h-0" id="wizard-container">
+                    <canvas id="wizard-canvas" class="cursor-crosshair"></canvas>
+                </div>
+            </div>
+
+            <!-- VIEW 2: PROCESSING -->
+            <div id="view-processing" class="w-full h-full flex-1 hidden flex-col items-center justify-center p-4">
+                <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl max-w-md w-full text-center border border-slate-200 dark:border-slate-700">
+                    <div class="mb-5 relative">
+                        <div class="w-16 h-16 bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 rounded-2xl flex items-center justify-center mx-auto animate-pulse">
+                            <i class="fa-solid fa-microchip text-2xl text-sky-600 dark:text-sky-400"></i>
+                        </div>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-1.5">Processing Revision Overlay...</h2>
+                    <p id="process-status" class="text-xs text-slate-500 dark:text-slate-400 font-medium mb-6">Unified colorizing annotations & CAD vectors...</p>
+                    
+                    <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-3.5 mb-2 overflow-hidden shadow-inner border border-slate-200 dark:border-slate-600">
+                        <div id="process-bar" class="bg-gradient-to-r from-sky-500 to-emerald-500 h-3.5 rounded-full progress-bar-stripes transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px] text-slate-500 dark:text-slate-400">
+                        <span>Safe Memory Allocation Active</span>
+                        <span class="font-mono font-bold text-sky-600 dark:text-sky-400"><span id="process-pct">0</span>%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 3: RESULTS (BLUEBEAM REVU CAD WORKSPACE - 100% FULL SCREEN) -->
+            <div id="view-results" class="w-full h-full flex-1 hidden flex-col min-h-0">
+                <!-- Top Bluebeam Action Toolbar -->
+                <div class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-3 py-1.5 flex flex-wrap justify-between items-center gap-2 shadow-xs flex-none">
+                    <!-- View Modes Segmented Switcher -->
+                    <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-lg border border-slate-200 overflow-x-auto">
+                        <button onclick="setViewMode('overlay')" id="btn-mode-overlay" class="bb-segment-btn active" title="Overlay Blend (Multiply)">
+                            <i class="fa-solid fa-layer-group"></i> Overlay
+                        </button>
+                        <button onclick="setViewMode('difference')" id="btn-mode-diff" class="bb-segment-btn" title="Difference Highlighting Mode">
+                            <i class="fa-solid fa-circle-half-stroke"></i> Difference
+                        </button>
+                        <button onclick="setViewMode('split')" id="btn-mode-split" class="bb-segment-btn" title="Side-by-Side Split View">
+                            <i class="fa-solid fa-table-columns"></i> Split View
+                        </button>
+                        <button onclick="toggleBlink()" id="btn-mode-blink" class="bb-segment-btn" title="Blink/Flip Comparison (Shortcut: Space)">
+                            <i class="fa-solid fa-bolt"></i> Blink (Space)
+                        </button>
+                        <button onclick="setViewMode('doc1')" id="btn-mode-doc1" class="bb-segment-btn" title="View Document 1 Only">
+                            <span class="w-2 h-2 rounded-full bg-red-500"></span> Doc 1
+                        </button>
+                        <button onclick="setViewMode('doc2')" id="btn-mode-doc2" class="bb-segment-btn" title="View Document 2 Only">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Doc 2
+                        </button>
+                    </div>
+
+                    <!-- Right Quick Actions -->
+                    <div class="flex items-center space-x-2">
+                        <!-- Live Toggle Markups Button -->
+                        <button id="btn-live-toggle-markups" onclick="toggleOverlayMarkupsLive()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-650 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 rounded-lg text-xs font-semibold shadow-xs transition flex items-center gap-1.5" title="Toggle overlay between With Markups and Without Markups">
+                            <i class="fa-solid fa-stamp text-sky-600"></i>
+                            <span>Markups: <b id="lbl-live-markups" class="text-sky-600">ON</b></span>
+                        </button>
+                        <button onclick="exportSnapshotPNG()" class="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold shadow-sm transition flex items-center" title="Export Current View as High-Res PNG">
+                            <i class="fa-solid fa-camera mr-1.5 text-sky-600"></i> Snapshot
+                        </button>
+                        <button onclick="downloadPDF()" id="btn-download-pdf" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-md transition flex items-center">
+                            <i class="fa-solid fa-file-pdf mr-1.5"></i> Download Overlay PDF
+                        </button>
+                        <button onclick="resetApp()" class="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-lg text-xs font-semibold transition" title="Start New Comparison">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> New
+                        </button>
+                        <button onclick="switchAppMode('viewer')" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center gap-1" title="Return to Document Viewer Studio">
+                            <i class="fa-solid fa-arrow-left"></i> Viewer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Viewport Body (Drawer + Canvas - 100% Edge-to-Edge) -->
+                <div class="flex-1 flex flex-col md:flex-row min-h-0 relative h-full w-full overflow-hidden">
+                    <!-- Left Tool Drawer -->
+                    <div class="w-full md:w-72 flex-shrink-0 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 p-3 flex flex-col overflow-y-auto space-y-3 flex-none min-h-0">
+                        <!-- Layers Legend & Visibility -->
+                        <div>
+                            <h4 class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 flex items-center">
+                                <i class="fa-solid fa-layer-group text-sky-600 dark:text-sky-400 mr-1.5"></i> Layers & Markups
+                            </h4>
+                            <div class="space-y-1.5 bg-slate-50 dark:bg-slate-750 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs">
+                                <!-- Layer 1 -->
+                                <div class="flex items-center justify-between p-1.5 rounded hover:bg-white dark:hover:bg-slate-700 transition">
+                                    <div class="flex items-center space-x-2 min-w-0">
+                                        <span class="w-3 h-3 rounded-full flex-shrink-0" id="legend-dot-1" style="background-color: #ef4444;"></span>
+                                        <span class="font-bold text-slate-800 dark:text-slate-200 truncate" id="legend-name-1">Doc 1 (Original)</span>
+                                    </div>
+                                    <button onclick="toggleLayerVisibility(1)" id="layer-eye-1" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-1" title="Toggle Layer 1">
+                                        <i class="fa-solid fa-eye text-xs"></i>
+                                    </button>
+                                </div>
+                                <!-- Layer 2 -->
+                                <div class="flex items-center justify-between p-1.5 rounded hover:bg-white dark:hover:bg-slate-700 transition">
+                                    <div class="flex items-center space-x-2 min-w-0">
+                                        <span class="w-3 h-3 rounded-full flex-shrink-0" id="legend-dot-2" style="background-color: #10b981;"></span>
+                                        <span class="font-bold text-slate-800 dark:text-slate-200 truncate" id="legend-name-2">Doc 2 (Revision)</span>
+                                    </div>
+                                    <button onclick="toggleLayerVisibility(2)" id="layer-eye-2" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-1" title="Toggle Layer 2">
+                                        <i class="fa-solid fa-eye text-xs"></i>
+                                    </button>
+                                </div>
+                                <!-- Annotations Layer -->
+                                <div class="flex items-center justify-between p-1.5 rounded hover:bg-white dark:hover:bg-slate-700 transition">
+                                    <div class="flex items-center space-x-2 min-w-0">
+                                        <i class="fa-solid fa-stamp text-sky-600 text-xs"></i>
+                                        <span class="font-bold text-slate-800 dark:text-slate-200 truncate">Annotations Layer</span>
+                                    </div>
+                                    <button onclick="toggleOverlayMarkupsLive()" id="layer-eye-markups" class="text-sky-600 hover:text-sky-800 dark:hover:text-sky-300 p-1" title="Toggle Markup Annotations">
+                                        <i class="fa-solid fa-eye text-xs"></i>
+                                    </button>
+                                </div>
+                                <!-- Overlap indicator -->
+                                <div class="flex items-center space-x-2 p-1.5 text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-700 mt-1">
+                                    <span class="w-3 h-3 rounded-full bg-slate-900 border border-slate-400 flex-shrink-0"></span>
+                                    <span>Dark / Black = Matched Content</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Opacity & Blend Mode -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Revision Opacity</label>
+                                <span class="text-xs font-mono font-bold text-sky-600 dark:text-sky-400" id="ui-opacity-val">100%</span>
+                            </div>
+                            <input type="range" id="ui-opacity" min="0" max="1" step="0.05" value="1" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-600" oninput="handleOpacityInput(this.value)">
+                        </div>
+
+                        <!-- Micron Alignment Nudge (Bluebeam Revu Calibration Feature) -->
+                        <div class="bg-slate-50 dark:bg-slate-750 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center">
+                                    <i class="fa-solid fa-arrows-up-down-left-right text-sky-600 dark:text-sky-400 mr-1.5"></i> Nudge Alignment
+                                </h4>
+                                <button onclick="resetNudge()" class="text-[10px] text-sky-600 dark:text-sky-400 hover:underline font-bold" title="Reset Nudge Offset">Reset</button>
+                            </div>
+
+                            <!-- 4-Way Nudge Pad -->
+                            <div class="grid grid-cols-3 gap-1 w-28 mx-auto text-center">
+                                <div></div>
+                                <button onclick="nudgeDoc2(0, -1)" class="nudge-btn p-1.5 rounded bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600" title="Nudge Revision Up"><i class="fa-solid fa-chevron-up text-xs"></i></button>
+                                <div></div>
+                                <button onclick="nudgeDoc2(-1, 0)" class="nudge-btn p-1.5 rounded bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600" title="Nudge Revision Left"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                                <div class="flex items-center justify-center text-[10px] font-bold text-slate-400">NUDGE</div>
+                                <button onclick="nudgeDoc2(1, 0)" class="nudge-btn p-1.5 rounded bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600" title="Nudge Revision Right"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                                <div></div>
+                                <button onclick="nudgeDoc2(0, 1)" class="nudge-btn p-1.5 rounded bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600" title="Nudge Revision Down"><i class="fa-solid fa-chevron-down text-xs"></i></button>
+                                <div></div>
+                            </div>
+
+                            <!-- Step Selector & Offset Readout -->
+                            <div class="flex justify-between items-center pt-1 border-t border-slate-200 dark:border-slate-700 text-[11px]">
+                                <div class="flex items-center space-x-1">
+                                    <span class="text-slate-500 dark:text-slate-400">Step:</span>
+                                    <button onclick="setNudgeStep(1)" id="step-1" class="px-1.5 py-0.5 rounded bg-sky-600 text-white font-bold text-[10px]">1px</button>
+                                    <button onclick="setNudgeStep(5)" id="step-5" class="px-1.5 py-0.5 rounded bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-bold text-[10px]">5px</button>
+                                    <button onclick="setNudgeStep(20)" id="step-20" class="px-1.5 py-0.5 rounded bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-bold text-[10px]">20px</button>
+                                </div>
+                                <span class="font-mono text-slate-600 dark:text-slate-300 font-bold" id="nudge-offset-text">X:0 Y:0</span>
+                            </div>
+                        </div>
+
+                        <!-- CAD Sheet & Page Information -->
+                        <div class="mt-auto bg-slate-50 dark:bg-slate-750 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs space-y-1.5">
+                            <div class="flex justify-between text-slate-500 dark:text-slate-400">
+                                <span>Sheet Size:</span>
+                                <span class="font-bold text-slate-800 dark:text-slate-200" id="hud-sheet-size">24.0" × 36.0" (Arch D)</span>
+                            </div>
+                            <div class="flex justify-between text-slate-500 dark:text-slate-400">
+                                <span>Resolution:</span>
+                                <span class="font-mono text-slate-800 dark:text-slate-200 font-semibold" id="hud-res-size">2400 × 1600 px</span>
+                            </div>
+                            <div class="flex justify-between items-center pt-1.5 border-t border-slate-200 dark:border-slate-700">
+                                <button onclick="prevPage()" class="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-300 border border-transparent hover:border-slate-200" title="Previous Page"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                                <span class="font-bold text-slate-800 dark:text-slate-200 text-xs" id="ui-page-indicator">Page 1 / 1</span>
+                                <button onclick="nextPage()" class="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-300 border border-transparent hover:border-slate-200" title="Next Page"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Center CAD Viewport with Light Grid - Full Screen -->
+                    <div class="flex-1 overflow-hidden flex flex-col bg-slate-200 dark:bg-slate-950 relative min-w-0 min-h-0 h-full w-full">
+                        <div class="canvas-container flex-1 relative w-full h-full min-h-0 overflow-hidden" id="canvas-wrapper">
+                            <canvas id="preview-canvas"></canvas>
+
+                            <!-- Floating HUD Pill Controls (Bottom Center) -->
+                            <div class="absolute bottom-5 left-1/2 transform -translate-x-1/2 revu-hud-pill px-3 py-1.5 flex items-center space-x-1 z-20 shadow-lg bg-white/90 dark:bg-slate-850/90 backdrop-blur rounded-full border border-slate-200 dark:border-slate-700">
+                                <button onclick="adjustPreviewZoom(0.8)" class="revu-hud-btn p-1 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded" title="Zoom Out (-)"><i class="fa-solid fa-minus text-xs"></i></button>
+                                <button onclick="resetPreviewTransform()" class="revu-hud-btn text-xs font-bold px-2 text-slate-700 dark:text-slate-200" title="Reset Zoom / Fit Page" id="ui-zoom-level">100%</button>
+                                <button onclick="adjustPreviewZoom(1.25)" class="revu-hud-btn p-1 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded" title="Zoom In (+)"><i class="fa-solid fa-plus text-xs"></i></button>
+                                <div class="w-px h-3.5 bg-slate-300 dark:bg-slate-600 mx-1"></div>
+                                <button onclick="resetPreviewTransform()" class="revu-hud-btn text-xs font-bold text-slate-700 dark:text-slate-200 px-1.5 py-0.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded" title="Fit Entire Drawing">FIT</button>
+                                <button onclick="set100PercentZoom()" class="revu-hud-btn text-xs font-bold text-slate-700 dark:text-slate-200 px-1.5 py-0.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded" title="100% Pixel Resolution">1:1</button>
+                            </div>
+
+                            <!-- Live Coordinates HUD (Bottom Right) -->
+                            <div class="absolute bottom-3 right-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded text-[11px] font-mono text-slate-600 dark:text-slate-300 pointer-events-none z-10 shadow-sm">
+                                <span id="ui-coord-hud">X: 0 pt • Y: 0 pt</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Filmstrip Multi-Page Navigator -->
+                <div class="w-full bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 px-3 py-1.5 flex items-center overflow-x-auto gap-2 flex-none" id="results-filmstrip">
+                    <!-- Populated dynamically with mini page cards -->
+                </div>
+            </div>
+        </div>

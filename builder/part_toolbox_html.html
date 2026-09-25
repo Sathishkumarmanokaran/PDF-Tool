@@ -1,0 +1,150 @@
+        <!-- ==================== MODE 2: PDF TOOLBOX & THUMBNAIL MANAGER ==================== -->
+        <div id="mode-container-toolbox" class="flex-1 hidden flex-col min-h-0 w-full h-full bg-slate-100 dark:bg-slate-900 select-none overflow-hidden p-2 sm:p-3">
+            <!-- Toolbox Upload Screen (Before PDF is loaded in manager) -->
+            <div id="toolbox-upload-view" class="w-full max-w-2xl mx-auto my-auto p-8 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 text-center space-y-6">
+                <div class="w-16 h-16 bg-blue-50 dark:bg-blue-950/60 text-accentBlue dark:text-brand-400 rounded-full flex items-center justify-center mx-auto text-2xl border border-blue-200 dark:border-blue-900">
+                    <i class="fa-solid fa-folder-open"></i>
+                </div>
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700">
+                    <button onclick="switchAppMode('viewer')" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-650 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 text-xs font-semibold shadow-xs transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrow-left"></i> Return to Document Viewer
+                    </button>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Page Manager Studio</span>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Advanced PDF Page Manager & Toolbox</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Upload a PDF to view visual thumbnails stacked vertically, adjust thumbnail width, rotate pages, insert sheets, flatten markups, extract ranges, and delete pages locally.</p>
+                </div>
+                <div class="upload-card bg-slate-50 dark:bg-slate-750 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 p-8 text-center relative cursor-pointer hover:border-brand-500 transition" id="toolbox-dropzone">
+                    <input type="file" id="toolbox-file-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="application/pdf">
+                    <i class="fa-regular fa-file-pdf text-4xl text-pdfRed mb-2"></i>
+                    <p class="font-semibold text-slate-700 dark:text-slate-200">Drag & drop your PDF here or click to browse</p>
+                    <p class="text-xs text-slate-400 mt-1">Runs 100% locally in your browser</p>
+                </div>
+            </div>
+
+            <!-- Toolbox Workspace (Visible after PDF is loaded - 100% Full Screen) -->
+            <div id="toolbox-workspace" class="w-full h-full flex-1 hidden flex-col min-h-0">
+                <!-- Action Header Toolbar -->
+                <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 mb-2 shadow-sm flex flex-wrap items-center justify-between gap-2 flex-none">
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-sm text-slate-800 dark:text-white px-2 truncate max-w-xs" id="toolbox-filename">document.pdf</span>
+                        <span class="text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2.5 py-0.5 rounded-full font-medium" id="toolbox-page-count">0 Pages</span>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        <!-- Select Actions -->
+                        <div class="flex bg-slate-100 dark:bg-slate-700 p-0.5 rounded-lg border border-slate-200 dark:border-slate-600">
+                            <button onclick="tbSelectAll()" class="px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-600 rounded transition">Select All</button>
+                            <button onclick="tbDeselectAll()" class="px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-600 rounded transition">Deselect All</button>
+                        </div>
+
+                        <!-- Rotate Dropdown / Button -->
+                        <div class="relative group">
+                            <button class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-650 text-slate-700 dark:text-slate-200 font-semibold px-3 py-1.5 rounded-lg text-xs flex items-center shadow-xs">
+                                <i class="fa-solid fa-rotate-right mr-1.5 text-accentBlue"></i> Rotate Pages <i class="fa-solid fa-chevron-down ml-1.5 text-[10px]"></i>
+                            </button>
+                            <div class="absolute right-0 mt-1 w-52 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl hidden group-hover:block z-30 py-1.5">
+                                <div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Selected Page(s)</div>
+                                <button onclick="tbRotateAction('selected', 90)" class="w-full text-left px-3.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-between">
+                                    <span>Rotate Right</span><span class="font-mono text-[10px] text-slate-400">+90°</span>
+                                </button>
+                                <button onclick="tbRotateAction('selected', -90)" class="w-full text-left px-3.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-between">
+                                    <span>Rotate Left</span><span class="font-mono text-[10px] text-slate-400">-90°</span>
+                                </button>
+                                <button onclick="tbRotateAction('selected', 180)" class="w-full text-left px-3.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-between">
+                                    <span>Rotate 180° (Flip)</span><span class="font-mono text-[10px] text-slate-400">180°</span>
+                                </button>
+
+                                <div class="border-t border-slate-100 dark:border-slate-700 my-1"></div>
+                                <div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">All Pages in PDF</div>
+                                <button onclick="tbRotateAction('all', 90)" class="w-full text-left px-3.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-between">
+                                    <span>Rotate All Right</span><span class="font-mono text-[10px] text-slate-400">+90°</span>
+                                </button>
+                                <button onclick="tbRotateAction('all', -90)" class="w-full text-left px-3.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-between">
+                                    <span>Rotate All Left</span><span class="font-mono text-[10px] text-slate-400">-90°</span>
+                                </button>
+                                <button onclick="tbRotateAction('all', 180)" class="w-full text-left px-3.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-between">
+                                    <span>Rotate All 180°</span><span class="font-mono text-[10px] text-slate-400">180°</span>
+                                </button>
+
+                                <div class="border-t border-slate-100 dark:border-slate-700 my-1"></div>
+                                <button onclick="openModal('modal-rotate')" class="w-full text-left px-3.5 py-1.5 text-xs font-semibold text-accentBlue dark:text-brand-400 hover:bg-blue-50 dark:hover:bg-slate-700 flex items-center">
+                                    <i class="fa-solid fa-sliders mr-1.5"></i> Custom Rotate Dialog...
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Insert Button -->
+                        <button onclick="openModal('modal-insert')" class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-650 text-slate-700 dark:text-slate-200 font-semibold px-3 py-1.5 rounded-lg text-xs flex items-center shadow-xs">
+                            <i class="fa-solid fa-file-circle-plus mr-1.5 text-accentBlue"></i> Insert Pages
+                        </button>
+
+                        <!-- Flatten Markups Button (Feature 01) -->
+                        <button onclick="openModal('modal-flatten')" class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-650 text-slate-700 dark:text-slate-200 font-semibold px-3 py-1.5 rounded-lg text-xs flex items-center shadow-xs">
+                            <i class="fa-solid fa-stamp mr-1.5 text-amber-500"></i> Flatten Markups
+                        </button>
+
+                        <!-- Extract Button -->
+                        <button onclick="openModal('modal-extract')" class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-650 text-slate-700 dark:text-slate-200 font-semibold px-3 py-1.5 rounded-lg text-xs flex items-center shadow-xs">
+                            <i class="fa-solid fa-file-export mr-1.5 text-accentGreen"></i> Extract Pages
+                        </button>
+
+                        <!-- Delete Button -->
+                        <button onclick="tbDeleteSelected()" class="bg-white dark:bg-slate-700 border border-red-200 dark:border-red-900 hover:bg-red-50 dark:hover:bg-red-950 text-pdfRed font-semibold px-3 py-1.5 rounded-lg text-xs flex items-center shadow-xs">
+                            <i class="fa-solid fa-trash-can mr-1.5"></i> Delete Selected
+                        </button>
+
+                        <!-- Download Modified PDF -->
+                        <button onclick="tbDownloadModifiedPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-1.5 rounded-lg text-xs flex items-center shadow-md">
+                            <i class="fa-solid fa-download mr-1.5"></i> Save PDF
+                        </button>
+                        <!-- Return to Document Viewer Button -->
+                        <button onclick="switchAppMode('viewer')" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-3.5 py-1.5 rounded-lg text-xs flex items-center shadow-md" title="Return to Document Viewer Studio">
+                            <i class="fa-solid fa-arrow-left mr-1.5"></i> Viewer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Workspace Body (Full Screen Flex) -->
+                <div class="flex-1 flex flex-col lg:flex-row gap-3 min-h-0 h-full overflow-hidden">
+                    <!-- Left Thumbnail Panel -->
+                    <div class="w-full lg:w-80 flex-shrink-0 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-3 flex flex-col shadow-sm min-h-0 h-full overflow-hidden">
+                        <div class="flex justify-between items-center mb-2 pb-2 border-b border-slate-100 dark:border-slate-700 gap-2 flex-none">
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center">
+                                <i class="fa-solid fa-list mr-1.5 text-accentBlue"></i> Pages
+                            </h3>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-[10px] text-slate-500 font-medium">Size:</span>
+                                <input type="range" id="thumb-width-slider" min="80" max="220" value="120" class="w-16 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer" oninput="updateThumbnailWidth(this.value)">
+                                <span class="text-xs font-semibold text-accentBlue dark:text-brand-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full" id="selected-count-badge">0 selected</span>
+                            </div>
+                        </div>
+                        <div id="thumbnails-container" class="flex-1 overflow-y-auto flex flex-col items-center space-y-2 pr-1 min-h-0">
+                            <!-- Populated dynamically as vertical stack cards -->
+                        </div>
+                    </div>
+
+                    <!-- Right Full Page Preview Panel (Full Screen) -->
+                    <div class="flex-1 w-full bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden shadow-sm min-h-0 h-full">
+                        <div class="bg-slate-100 dark:bg-slate-750 border-b border-slate-200 dark:border-slate-700 px-3 py-2 flex flex-wrap justify-between items-center gap-2 text-xs text-slate-600 dark:text-slate-300 font-semibold flex-none">
+                            <span id="toolbox-preview-title" class="truncate">Select a page thumbnail to preview</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="flex bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded shadow-xs px-1 items-center space-x-1">
+                                    <button onclick="adjustToolboxPreviewZoom(0.8)" class="px-2 py-1 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600 rounded text-xs" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
+                                    <span id="tb-zoom-level" class="font-bold text-slate-700 dark:text-slate-200 px-1 text-[11px]">100%</span>
+                                    <button onclick="adjustToolboxPreviewZoom(1.25)" class="px-2 py-1 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600 rounded text-xs" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
+                                    <button onclick="resetToolboxPreviewTransform()" class="px-2 py-1 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600 rounded text-xs font-bold">FIT</button>
+                                </div>
+                                <button onclick="tbRotateActivePage(-90)" class="px-2 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded hover:bg-slate-50 dark:hover:bg-slate-600 shadow-xs" title="Rotate Page Left (-90°)"><i class="fa-solid fa-rotate-left"></i></button>
+                                <button onclick="tbRotateActivePage(90)" class="px-2 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded hover:bg-slate-50 dark:hover:bg-slate-600 shadow-xs" title="Rotate Page Right (+90°)"><i class="fa-solid fa-rotate-right"></i></button>
+                                <button onclick="tbResetToolboxUpload()" class="text-pdfRed hover:underline ml-1" title="Upload Different PDF"><i class="fa-solid fa-arrow-rotate-left"></i></button>
+                            </div>
+                        </div>
+                        <div class="canvas-container flex-1 relative w-full h-full min-h-0 overflow-hidden bg-slate-200 dark:bg-slate-950" id="toolbox-canvas-wrapper">
+                            <canvas id="toolbox-canvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>

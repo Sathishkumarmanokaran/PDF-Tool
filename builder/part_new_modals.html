@@ -1,0 +1,457 @@
+    <!-- ========================================== -->
+    <!-- VIEWER MODALS & TOAST NOTIFICATION CONTAINER -->
+    <!-- ========================================== -->
+
+    <!-- TOAST CONTAINER -->
+    <div id="toast-container"></div>
+
+    <!-- MODAL: CALIBRATE SCALE -->
+    <div id="modal-calibrate-scale" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-850">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-drafting-compass text-brand-600 text-lg"></i>
+                    <h3 class="font-bold text-slate-800 dark:text-white text-sm">Calibrate Drawing Scale</h3>
+                </div>
+                <button onclick="closeModal('modal-calibrate-scale')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-5 space-y-4 text-xs">
+                <div>
+                    <label class="font-semibold text-slate-700 dark:text-slate-300 block mb-1">Standard Preset Scale</label>
+                    <select id="scale-preset-select" onchange="handleScalePresetChange(this.value)" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200">
+                        <optgroup label="Architectural (US)">
+                            <option value="arch-1-4" selected>1/4" = 1'-0" (1:48)</option>
+                            <option value="arch-1-8">1/8" = 1'-0" (1:96)</option>
+                            <option value="arch-1-2">1/2" = 1'-0" (1:24)</option>
+                            <option value="arch-3-4">3/4" = 1'-0" (1:16)</option>
+                            <option value="arch-1">1" = 1'-0" (1:12)</option>
+                            <option value="arch-3">3" = 1'-0" (1:4)</option>
+                        </optgroup>
+                        <optgroup label="Civil / Engineering">
+                            <option value="eng-10">1" = 10'-0" (1:120)</option>
+                            <option value="eng-20">1" = 20'-0" (1:240)</option>
+                            <option value="eng-30">1" = 30'-0" (1:360)</option>
+                            <option value="eng-50">1" = 50'-0" (1:600)</option>
+                            <option value="eng-100">1" = 100'-0" (1:1200)</option>
+                        </optgroup>
+                        <optgroup label="Metric">
+                            <option value="metric-10">1:10</option>
+                            <option value="metric-20">1:20</option>
+                            <option value="metric-50">1:50</option>
+                            <option value="metric-100">1:100</option>
+                            <option value="metric-200">1:200</option>
+                            <option value="metric-500">1:500</option>
+                        </optgroup>
+                        <option value="custom">Custom Scale Calibration...</option>
+                    </select>
+                </div>
+
+                <!-- Custom Scale inputs (toggled) -->
+                <div id="custom-scale-fields" class="hidden p-3 rounded-lg bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-700 space-y-2">
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                        Specify known real-world dimension for a given length on paper:
+                    </p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[11px] text-slate-500 block">Length on Drawing</label>
+                            <div class="flex items-center gap-1">
+                                <input type="number" id="custom-scale-doc-val" value="1.0" step="0.1" class="w-full text-xs px-2 py-1.5 rounded bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600">
+                                <span class="text-slate-400 font-medium">in</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-500 block">Equals Real World</label>
+                            <div class="flex items-center gap-1">
+                                <input type="number" id="custom-scale-real-val" value="4.0" step="0.1" class="w-full text-xs px-2 py-1.5 rounded bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600">
+                                <select id="custom-scale-real-unit" class="text-xs px-1.5 py-1.5 rounded bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600">
+                                    <option value="ft" selected>ft</option>
+                                    <option value="in">in</option>
+                                    <option value="m">m</option>
+                                    <option value="mm">mm</option>
+                                    <option value="cm">cm</option>
+                                    <option value="yd">yd</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Two-Point Calibration on Drawing -->
+                <div class="pt-2 border-t border-slate-200 dark:border-slate-700">
+                    <button type="button" onclick="startInteractiveScaleCalibration()" class="w-full py-2 px-3 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-semibold text-xs border border-indigo-200 dark:border-indigo-800 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-ruler-combined"></i>
+                        <span>Click & Drag to Measure Known Distance on Sheet</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 flex items-center justify-end gap-2">
+                <button onclick="closeModal('modal-calibrate-scale')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700 text-xs font-medium">
+                    Cancel
+                </button>
+                <button onclick="applyScaleCalibration()" class="px-4 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs">
+                    Apply Scale
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: SIGNATURE PAD -->
+    <div id="modal-signature" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-850">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-signature text-brand-600 text-lg"></i>
+                    <h3 class="font-bold text-slate-800 dark:text-white text-sm">Create Digital Signature</h3>
+                </div>
+                <button onclick="closeModal('modal-signature')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-5 space-y-4 text-xs">
+                <!-- Signature Mode Tabs: Draw / Type -->
+                <div class="flex items-center border-b border-slate-200 dark:border-slate-700 gap-4">
+                    <button id="sig-tab-draw" onclick="setSignatureTab('draw')" class="pb-2 font-semibold text-brand-600 border-b-2 border-brand-600">Draw Signature</button>
+                    <button id="sig-tab-type" onclick="setSignatureTab('type')" class="pb-2 font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-800">Type Name</button>
+                </div>
+
+                <!-- Draw Panel -->
+                <div id="sig-panel-draw" class="space-y-2">
+                    <div class="relative border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl bg-slate-50 dark:bg-slate-900 overflow-hidden">
+                        <canvas id="signature-canvas" width="460" height="160" class="cursor-crosshair w-full h-40"></canvas>
+                        <div class="absolute bottom-2 left-3 text-[10px] text-slate-400 select-none pointer-events-none">
+                            Sign above using your mouse or touch pen
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-500 text-[11px]">Ink:</span>
+                            <div class="flex items-center gap-1">
+                                <button onclick="setSigColor('#000000')" class="w-4 h-4 rounded-full bg-black border border-white ring-1 ring-slate-300"></button>
+                                <button onclick="setSigColor('#003366')" class="w-4 h-4 rounded-full bg-blue-900 border border-white ring-1 ring-slate-300"></button>
+                            </div>
+                        </div>
+                        <button onclick="clearSignatureCanvas()" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 text-xs">
+                            <i class="fa-solid fa-eraser mr-1"></i> Clear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Type Panel -->
+                <div id="sig-panel-type" class="hidden space-y-3">
+                    <div>
+                        <label class="text-slate-600 dark:text-slate-300 block mb-1">Your Full Name</label>
+                        <input type="text" id="sig-type-input" placeholder="e.g. Johnathan Doe, PE" oninput="updateTypedSigPreview(this.value)" class="w-full text-sm px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600">
+                    </div>
+                    <div class="p-4 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 min-h-[90px] flex items-center justify-center">
+                        <span id="sig-type-preview" class="text-2xl font-serif italic text-blue-950 dark:text-blue-200 tracking-wide">
+                            Johnathan Doe
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 flex items-center justify-end gap-2">
+                <button onclick="closeModal('modal-signature')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700 text-xs font-medium">
+                    Cancel
+                </button>
+                <button onclick="applySignature()" class="px-4 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs">
+                    Place Signature on Document
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CUSTOM STAMP -->
+    <div id="modal-custom-stamp" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-850">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-stamp text-purple-600 text-lg"></i>
+                    <h3 class="font-bold text-slate-800 dark:text-white text-sm">Create Custom Rubber Stamp</h3>
+                </div>
+                <button onclick="closeModal('modal-custom-stamp')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-5 space-y-4 text-xs">
+                <div>
+                    <label class="font-semibold text-slate-700 dark:text-slate-300 block mb-1">Stamp Title</label>
+                    <input type="text" id="custom-stamp-title" value="REVIEWED & APPROVED" class="w-full text-xs px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 font-bold uppercase">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-slate-600 dark:text-slate-400 block mb-1">Author / Name</label>
+                        <input type="text" id="custom-stamp-author" value="Architect" class="w-full text-xs px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600">
+                    </div>
+                    <div>
+                        <label class="text-slate-600 dark:text-slate-400 block mb-1">Color Theme</label>
+                        <select id="custom-stamp-color" class="w-full text-xs px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600">
+                            <option value="#059669">Emerald Green</option>
+                            <option value="#dc2626">Crimson Red</option>
+                            <option value="#0284c7">Navy Blue</option>
+                            <option value="#d97706">Amber Orange</option>
+                            <option value="#7c3aed">Purple</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="custom-stamp-include-date" checked class="rounded border-slate-300 text-brand-600">
+                    <label for="custom-stamp-include-date" class="text-slate-700 dark:text-slate-300">Include Current Date & Timestamp</label>
+                </div>
+            </div>
+
+            <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 flex items-center justify-end gap-2">
+                <button onclick="closeModal('modal-custom-stamp')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700 text-xs font-medium">
+                    Cancel
+                </button>
+                <button onclick="applyCustomStamp()" class="px-4 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs">
+                    Place Stamp on Document
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: KEYBOARD SHORTCUTS & HELP -->
+    <div id="modal-shortcuts" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 max-w-xl w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-850">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-keyboard text-brand-600 text-lg"></i>
+                    <h3 class="font-bold text-slate-800 dark:text-white text-sm">Keyboard Shortcuts & Guide</h3>
+                </div>
+                <button onclick="closeModal('modal-shortcuts')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-5 max-h-[70vh] overflow-y-auto space-y-4 text-xs">
+                <div>
+                    <h4 class="font-bold text-slate-800 dark:text-slate-200 mb-2">Navigation & Tools</h4>
+                    <div class="grid grid-cols-2 gap-2 text-slate-600 dark:text-slate-300">
+                        <div class="flex items-center justify-between p-1.5 rounded bg-slate-50 dark:bg-slate-700/50">
+                            <span>Select / Transform</span>
+                            <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 font-mono text-[10px]">V</kbd>
+                        </div>
+                        <div class="flex items-center justify-between p-1.5 rounded bg-slate-50 dark:bg-slate-700/50">
+                            <span>Pan / Hand Tool</span>
+                            <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 font-mono text-[10px]">H / Space+Drag</kbd>
+                        </div>
+                        <div class="flex items-center justify-between p-1.5 rounded bg-slate-50 dark:bg-slate-700/50">
+                            <span>Text Box</span>
+                            <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 font-mono text-[10px]">T</kbd>
+                        </div>
+                        <div class="flex items-center justify-between p-1.5 rounded bg-slate-50 dark:bg-slate-700/50">
+                            <span>Callout Arrow</span>
+                            <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 font-mono text-[10px]">C</kbd>
+                        </div>
+                        <div class="flex items-center justify-between p-1.5 rounded bg-slate-50 dark:bg-slate-700/50">
+                            <span>Revision Cloud</span>
+                            <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 font-mono text-[10px]">K</kbd>
+                        </div>
+                        <div class="flex items-center justify-between p-1.5 rounded bg-slate-50 dark:bg-slate-700/50">
+                            <span>Length Measure</span>
+                            <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 font-mono text-[10px]">D</kbd>
+                        </div>
+                        <div class="flex items-center justify-between p-1.5 rounded bg-slate-50 dark:bg-slate-700/50">
+                            <span>Area Measure</span>
+                            <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 font-mono text-[10px]">S</kbd>
+                        </div>
+                        <div class="flex items-center justify-between p-1.5 rounded bg-slate-50 dark:bg-slate-700/50">
+                            <span>Sticky Note</span>
+                            <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 font-mono text-[10px]">N</kbd>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-slate-800 dark:text-slate-200 mb-2">Actions & Editing</h4>
+                    <div class="grid grid-cols-2 gap-2 text-slate-600 dark:text-slate-300">
+                        <div class="flex items-center justify-between p-1.5 rounded bg-slate-50 dark:bg-slate-700/50">
+                            <span>Delete Markup</span>
+                            <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 font-mono text-[10px]">Del / Backspace</kbd>
+                        </div>
+                        <div class="flex items-center justify-between p-1.5 rounded bg-slate-50 dark:bg-slate-700/50">
+                            <span>Undo / Redo</span>
+                            <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 font-mono text-[10px]">Ctrl+Z / Ctrl+Y</kbd>
+                        </div>
+                        <div class="flex items-center justify-between p-1.5 rounded bg-slate-50 dark:bg-slate-700/50">
+                            <span>Nudge Markup</span>
+                            <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 font-mono text-[10px]">Arrow Keys (Shift: 10px)</kbd>
+                        </div>
+                        <div class="flex items-center justify-between p-1.5 rounded bg-slate-50 dark:bg-slate-700/50">
+                            <span>Cancel / Deselect</span>
+                            <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 font-mono text-[10px]">Escape</kbd>
+                        </div>
+                        <div class="flex items-center justify-between p-1.5 rounded bg-slate-50 dark:bg-slate-700/50">
+                            <span>Zoom In / Out</span>
+                            <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 font-mono text-[10px]">Ctrl + Wheel / Ctrl +/-</kbd>
+                        </div>
+                        <div class="flex items-center justify-between p-1.5 rounded bg-slate-50 dark:bg-slate-700/50">
+                            <span>Reset Zoom 100%</span>
+                            <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 font-mono text-[10px]">Ctrl + 0</kbd>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 flex justify-end">
+                <button onclick="closeModal('modal-shortcuts')" class="px-4 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold">
+                    Got It
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: INSERT BLANK PAGE (BLUEBEAM REVU STYLE) -->
+    <div id="modal-insert-blank-page" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 items-center justify-center p-4 select-none">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <!-- Modal Header -->
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-850">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400 flex items-center justify-center text-sm border border-brand-200 dark:border-brand-800">
+                        <i class="fa-solid fa-file-circle-plus"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 dark:text-white text-sm">Insert Blank Page</h3>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Configure page size, orientation, grid style, and placement</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modal-insert-blank-page')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-5 space-y-4 text-xs">
+                <!-- Page Size Selection -->
+                <div>
+                    <label class="font-semibold text-slate-700 dark:text-slate-300 block mb-1">Page Size</label>
+                    <select id="insert-blank-size" onchange="handleInsertBlankSizeChange(this.value)" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 font-medium">
+                        <optgroup label="Document Match">
+                            <option value="match" id="opt-size-match" selected>Match Current Page Size (Auto)</option>
+                        </optgroup>
+                        <optgroup label="Architectural (CAD)">
+                            <option value="arch-d">ARCH D — 24" x 36" (Standard Construction Sheet)</option>
+                            <option value="arch-c">ARCH C — 18" x 24"</option>
+                            <option value="arch-e">ARCH E — 36" x 48" (Full Master Plan)</option>
+                            <option value="arch-b">ARCH B — 12" x 18" (Half Size)</option>
+                        </optgroup>
+                        <optgroup label="Engineering & ANSI">
+                            <option value="ansi-d">ANSI D — 22" x 34"</option>
+                            <option value="tabloid">ANSI B / Tabloid — 11" x 17" (Double Letter)</option>
+                            <option value="letter">Letter — 8.5" x 11" (Standard US)</option>
+                            <option value="legal">Legal — 8.5" x 14"</option>
+                        </optgroup>
+                        <optgroup label="ISO Metric">
+                            <option value="a4">A4 — 210 x 297 mm</option>
+                            <option value="a3">A3 — 297 x 420 mm</option>
+                            <option value="a2">A2 — 420 x 594 mm</option>
+                            <option value="a1">A1 — 594 x 841 mm</option>
+                            <option value="a0">A0 — 841 x 1189 mm</option>
+                        </optgroup>
+                        <option value="custom">Custom Dimensions...</option>
+                    </select>
+                </div>
+
+                <!-- Custom Dimensions (Shown when custom is selected) -->
+                <div id="insert-blank-custom-dims" class="hidden p-3 rounded-xl bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-700 space-y-2">
+                    <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider block">Custom Sheet Dimensions</span>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[11px] font-medium text-slate-500 block mb-0.5">Width</label>
+                            <div class="flex items-center gap-1">
+                                <input type="number" id="insert-blank-custom-w" value="36" step="0.5" class="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 text-xs" oninput="updateInsertBlankDimensionsPreview()">
+                                <select id="insert-blank-custom-unit-w" onchange="updateInsertBlankDimensionsPreview()" class="px-2 py-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-xs">
+                                    <option value="in" selected>in</option>
+                                    <option value="mm">mm</option>
+                                    <option value="pt">pt</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-medium text-slate-500 block mb-0.5">Height</label>
+                            <div class="flex items-center gap-1">
+                                <input type="number" id="insert-blank-custom-h" value="24" step="0.5" class="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 text-xs" oninput="updateInsertBlankDimensionsPreview()">
+                                <select id="insert-blank-custom-unit-h" onchange="updateInsertBlankDimensionsPreview()" class="px-2 py-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-xs">
+                                    <option value="in" selected>in</option>
+                                    <option value="mm">mm</option>
+                                    <option value="pt">pt</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orientation Toggle -->
+                <div>
+                    <label class="font-semibold text-slate-700 dark:text-slate-300 block mb-1">Orientation</label>
+                    <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-700/60 rounded-xl">
+                        <button type="button" id="btn-orient-landscape" onclick="setInsertBlankOrientation('landscape')" class="py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 bg-white dark:bg-slate-800 text-brand-600 dark:text-brand-400 shadow-sm border border-slate-200 dark:border-slate-600">
+                            <i class="fa-solid fa-image text-sm"></i>
+                            <span>Landscape (Horizontal)</span>
+                        </button>
+                        <button type="button" id="btn-orient-portrait" onclick="setInsertBlankOrientation('portrait')" class="py-2 px-3 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-file text-sm"></i>
+                            <span>Portrait (Vertical)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Live Dimensions Badge -->
+                <div class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-ruler-combined text-brand-600"></i> Resulting Sheet Size:
+                    </span>
+                    <span id="insert-blank-dim-badge" class="font-mono font-bold text-slate-800 dark:text-slate-200">36.0" x 24.0" (2592 x 1728 pt)</span>
+                </div>
+
+                <!-- Background / Style Template -->
+                <div>
+                    <label class="font-semibold text-slate-700 dark:text-slate-300 block mb-1">Page Style / Background Template</label>
+                    <select id="insert-blank-style" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200">
+                        <option value="blank" selected>Blank White Sheet</option>
+                        <option value="grid">Engineering 1/4" Drawing Grid</option>
+                        <option value="fine-grid">Engineering 1/8" Fine Grid</option>
+                        <option value="dotgrid">Architectural Dot Grid (5mm)</option>
+                        <option value="lined">Lined / Ruled Notes Sheet</option>
+                    </select>
+                </div>
+
+                <!-- Placement & Page Count -->
+                <div class="grid grid-cols-2 gap-3 pt-1 border-t border-slate-200 dark:border-slate-700/60">
+                    <div>
+                        <label class="font-semibold text-slate-700 dark:text-slate-300 block mb-1">Insert Placement</label>
+                        <select id="insert-blank-placement" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200">
+                            <option value="after" selected>After Current Page</option>
+                            <option value="before">Before Current Page</option>
+                            <option value="start">At Document Beginning</option>
+                            <option value="end">At Document End</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="font-semibold text-slate-700 dark:text-slate-300 block mb-1">Number of Pages</label>
+                        <input type="number" id="insert-blank-count" min="1" max="100" value="1" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 font-bold">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 flex items-center justify-end gap-2">
+                <button type="button" onclick="closeModal('modal-insert-blank-page')" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-650 text-slate-700 dark:text-slate-200 text-xs font-semibold transition">
+                    Cancel
+                </button>
+                <button type="button" onclick="confirmInsertBlankPage()" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md shadow-emerald-600/25 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-circle-plus"></i>
+                    <span>Insert Blank Page(s)</span>
+                </button>
+            </div>
+        </div>
+    </div>

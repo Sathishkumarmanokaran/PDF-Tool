@@ -1,0 +1,103 @@
+    <!-- TOP APPLICATION HEADER & MODE SWITCHER -->
+    <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex-none z-30 select-none shadow-sm">
+        <div class="flex items-center justify-between px-3 h-12">
+            <!-- Left: Logo & Brand -->
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+                        <i class="fa-solid fa-file-pdf text-lg"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-slate-800 dark:text-white text-sm tracking-tight">Antigravity</span>
+                        <span class="font-semibold text-brand-600 dark:text-brand-400 text-xs px-1.5 py-0.5 rounded bg-brand-50 dark:bg-brand-950/60 ml-1 border border-brand-200 dark:border-brand-800">PRO</span>
+                    </div>
+                </div>
+
+                <!-- Vertical Divider -->
+                <div class="h-5 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
+                <!-- Main Workflow Navigation Tabs -->
+                <nav class="hidden md:flex items-center space-x-1" aria-label="Modes">
+                    <button id="nav-mode-viewer" onclick="switchAppMode('viewer')" class="nav-tab-btn active" title="Professional PDF Viewer, Annotation, Review & Measuring">
+                        <i class="fa-solid fa-highlighter text-xs"></i>
+                        <span>Viewer & Markup</span>
+                    </button>
+                    <button id="nav-mode-compare" onclick="switchAppMode('compare')" class="nav-tab-btn" title="Visual & Vector CAD Drawing Comparison">
+                        <i class="fa-solid fa-code-compare text-xs"></i>
+                        <span>Overlay Compare</span>
+                    </button>
+                    <button id="nav-mode-toolbox" onclick="openPageManagerWithCurrentDoc()" class="nav-tab-btn" title="Reorder, Rotate, Flatten, Insert & Delete Pages">
+                        <i class="fa-solid fa-file-lines text-xs"></i>
+                        <span>Page Manager</span>
+                    </button>
+                    <button id="nav-mode-binder" onclick="switchAppMode('binder')" class="nav-tab-btn" title="Combine & Merge Multiple PDFs into One Document">
+                        <i class="fa-solid fa-layer-group text-xs"></i>
+                        <span>Document Binder</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Center: Active Document Name & Info (Dynamic) -->
+            <div id="header-active-doc-info" class="hidden lg:flex items-center gap-2 max-w-sm truncate text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700/50 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-600">
+                <i class="fa-solid fa-file text-slate-400 text-[10px]"></i>
+                <span id="header-doc-name" class="font-medium truncate text-slate-700 dark:text-slate-200">No document open</span>
+                <span id="header-doc-pages" class="text-[10px] text-slate-400 font-mono"></span>
+            </div>
+
+            <!-- Right: Quick Actions, Offline Badge, Dark Mode, Mobile Hamburger -->
+            <div class="flex items-center gap-2">
+                <!-- Offline Badge -->
+                <div class="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800" title="All processing happens 100% inside your browser. No files are uploaded to any server.">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>100% Offline</span>
+                </div>
+
+                <!-- Quick Open / CAD Sample Buttons (when in viewer mode) -->
+                <div class="flex items-center gap-1">
+                    <label for="viewer-file-input" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md bg-brand-600 hover:bg-brand-700 text-white shadow-sm transition cursor-pointer select-none" title="Open PDF File">
+                        <i class="fa-solid fa-folder-open text-xs"></i>
+                        <span class="hidden sm:inline">Open PDF</span>
+                    </label>
+                    <button onclick="loadSampleCadDocument()" class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 transition cursor-pointer" title="Load sample architectural CAD floor plan to immediately test tools">
+                        <i class="fa-solid fa-drafting-compass text-brand-600 dark:text-brand-400 text-xs"></i>
+                        <span class="hidden sm:inline">Sample CAD</span>
+                    </button>
+                    <button onclick="saveModifiedPDF()" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition" title="Save / Download PDF with All Markups & Measurements">
+                        <i class="fa-solid fa-download text-xs"></i>
+                        <span class="hidden sm:inline">Export PDF</span>
+                    </button>
+                </div>
+
+                <!-- Dark Mode Toggle -->
+                <button id="theme-toggle-btn" onclick="toggleDarkMode()" class="p-1.5 rounded-md text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Toggle Light / Dark Mode">
+                    <i id="theme-toggle-icon" class="fa-solid fa-moon text-sm"></i>
+                </button>
+
+                <!-- Help / Shortcuts Modal Button -->
+                <button onclick="openModal('modal-shortcuts')" class="p-1.5 rounded-md text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Keyboard Shortcuts & User Guide">
+                    <i class="fa-solid fa-circle-question text-sm"></i>
+                </button>
+
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileModeMenu()" class="md:hidden p-1.5 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+                    <i class="fa-solid fa-bars text-sm"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobile-mode-menu" class="hidden md:hidden border-t border-slate-200 dark:border-slate-700 px-3 py-2 bg-slate-50 dark:bg-slate-850 space-y-1">
+            <button onclick="switchMobileMode('viewer')" class="w-full text-left px-3 py-2 text-xs font-semibold rounded text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center gap-2">
+                <i class="fa-solid fa-highlighter text-brand-600 w-4"></i> Viewer & Markup
+            </button>
+            <button onclick="switchMobileMode('compare')" class="w-full text-left px-3 py-2 text-xs font-semibold rounded text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center gap-2">
+                <i class="fa-solid fa-code-compare text-brand-600 w-4"></i> Overlay Compare
+            </button>
+            <button onclick="switchMobileMode('toolbox')" class="w-full text-left px-3 py-2 text-xs font-semibold rounded text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center gap-2">
+                <i class="fa-solid fa-file-lines text-brand-600 w-4"></i> Page Manager
+            </button>
+            <button onclick="switchMobileMode('binder')" class="w-full text-left px-3 py-2 text-xs font-semibold rounded text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center gap-2">
+                <i class="fa-solid fa-layer-group text-brand-600 w-4"></i> Document Binder
+            </button>
+        </div>
+    </header>

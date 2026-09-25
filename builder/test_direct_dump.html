@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <script src="../pdf.min.js"></script>
+    <script src="../pdf-lib.min.js"></script>
+</head>
+<body>
+<div id="output">1. Testing PDFLib create...<br>2. PDFLib created. Adding page via addPage() and setSize...<br>3. Page added! Embedding font...<br>4. Saving PDF...<br>5. Saved! Bytes length: 864<br>6. Loading in PDF.js...<br></div>
+<script>
+async function run() {
+    const out = (m) => document.getElementById('output').innerHTML += m + '<br>';
+    try {
+        out('1. Testing PDFLib create...');
+        const pdfDoc = await PDFLib.PDFDocument.create();
+        out('2. PDFLib created. Adding page via addPage() and setSize...');
+        const page = pdfDoc.addPage();
+        page.setSize(1296, 864);
+        out('3. Page added! Embedding font...');
+        const font = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
+        page.drawText('Sample Plan', { x: 50, y: 50, size: 20, font });
+        out('4. Saving PDF...');
+        const bytes = await pdfDoc.save();
+        out('5. Saved! Bytes length: ' + bytes.length);
+
+        out('6. Loading in PDF.js...');
+        const pdf = await pdfjsLib.getDocument({ data: bytes.slice(0) }).promise;
+        out('7. SUCCESS! PDF.js loaded doc with pages: ' + pdf.numPages);
+    } catch(err) {
+        out('ERROR: ' + err.message + ' | ' + err.stack);
+    }
+}
+run();
+</script>
+
+</body></html>

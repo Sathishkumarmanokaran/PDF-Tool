@@ -1,0 +1,729 @@
+    <!-- ========================================== -->
+    <!-- MODE CONTAINER 1: VIEWER & MARKUP STUDIO    -->
+    <!-- ========================================== -->
+    <div id="mode-container-viewer" class="flex-1 flex flex-col min-h-0 bg-slate-100 dark:bg-slate-900 select-none">
+        <!-- Hidden file input for Viewer (standard off-screen placement for cross-browser native label triggering) -->
+        <input type="file" id="viewer-file-input" accept=".pdf,application/pdf" class="sr-only" style="position:fixed; top:-2000px; left:-2000px; width:1px; height:1px; opacity:0; pointer-events:none;" onchange="handleViewerFileSelect(event)">
+
+        <!-- RIBBON TOOLBAR -->
+        <div class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex-none shadow-xs">
+            <!-- Ribbon Tabs -->
+            <div class="flex items-center px-3 border-b border-slate-150 dark:border-slate-700/60 bg-slate-50/70 dark:bg-slate-850/50 gap-1 text-xs overflow-x-auto">
+                <button onclick="setRibbonTab('home')" id="ribbon-tab-home" class="px-3 py-1.5 font-semibold text-brand-600 dark:text-brand-400 border-b-2 border-brand-600 dark:border-brand-400 whitespace-nowrap">Home</button>
+                <button onclick="setRibbonTab('markup')" id="ribbon-tab-markup" class="px-3 py-1.5 font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border-b-2 border-transparent whitespace-nowrap">Annotate</button>
+                <button onclick="setRibbonTab('shapes')" id="ribbon-tab-shapes" class="px-3 py-1.5 font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border-b-2 border-transparent whitespace-nowrap">Shapes</button>
+                <button onclick="setRibbonTab('measure')" id="ribbon-tab-measure" class="px-3 py-1.5 font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border-b-2 border-transparent whitespace-nowrap">Measure</button>
+                <button onclick="setRibbonTab('stamps')" id="ribbon-tab-stamps" class="px-3 py-1.5 font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border-b-2 border-transparent whitespace-nowrap">Stamps & Sign</button>
+                <div class="h-4 w-px bg-slate-300 dark:bg-slate-600 mx-1"></div>
+                <!-- ALL IN ONE STUDIO TABS (SAME LIKE BLUEBEAM REVU) -->
+                <button onclick="setRibbonTab('compare')" id="ribbon-tab-compare" class="px-3 py-1.5 font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border-b-2 border-transparent flex items-center gap-1.5 whitespace-nowrap">
+                    <i class="fa-solid fa-code-compare text-xs text-sky-600"></i>
+                    <span>Overlay Compare</span>
+                </button>
+                <button onclick="setRibbonTab('pages')" id="ribbon-tab-pages" class="px-3 py-1.5 font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border-b-2 border-transparent flex items-center gap-1.5 whitespace-nowrap">
+                    <i class="fa-solid fa-file-lines text-xs text-brand-600"></i>
+                    <span>Page Manager</span>
+                </button>
+                <button onclick="setRibbonTab('binder')" id="ribbon-tab-binder" class="px-3 py-1.5 font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border-b-2 border-transparent flex items-center gap-1.5 whitespace-nowrap">
+                    <i class="fa-solid fa-layer-group text-xs text-emerald-600"></i>
+                    <span>Document Binder</span>
+                </button>
+            </div>
+
+            <!-- Ribbon Content Panels -->
+            <div class="p-1.5 flex items-center gap-2 overflow-x-auto">
+                <!-- Group 1: Navigation & View Controls (Always accessible) -->
+                <div class="flex items-center gap-0.5 border-r border-slate-200 dark:border-slate-700 pr-2">
+                    <button id="tool-select" onclick="setActiveViewerTool('select')" class="ribbon-btn active" title="Select / Move / Resize Markups (V)">
+                        <i class="fa-solid fa-arrow-pointer text-sm mb-0.5"></i>
+                        <span>Select</span>
+                    </button>
+                    <button id="tool-hand" onclick="setActiveViewerTool('hand')" class="ribbon-btn" title="Hand / Pan Tool (H / Spacebar+Drag)">
+                        <i class="fa-solid fa-hand text-sm mb-0.5"></i>
+                        <span>Pan</span>
+                    </button>
+                    <button id="tool-select-text" onclick="setActiveViewerTool('select-text')" class="ribbon-btn" title="Select & Copy Text from Document">
+                        <i class="fa-solid fa-i-cursor text-sm mb-0.5"></i>
+                        <span>Text</span>
+                    </button>
+                </div>
+
+                <!-- Ribbon Tab: HOME -->
+                <div id="ribbon-panel-home" class="flex items-center gap-1">
+                    <div class="flex items-center gap-0.5 border-r border-slate-200 dark:border-slate-700 pr-2">
+                        <button onclick="zoomViewerIn()" class="ribbon-btn" title="Zoom In (Ctrl +)">
+                            <i class="fa-solid fa-magnifying-glass-plus text-sm mb-0.5"></i>
+                            <span>Zoom In</span>
+                        </button>
+                        <button onclick="zoomViewerOut()" class="ribbon-btn" title="Zoom Out (Ctrl -)">
+                            <i class="fa-solid fa-magnifying-glass-minus text-sm mb-0.5"></i>
+                            <span>Zoom Out</span>
+                        </button>
+                        <button onclick="setViewerZoom(1.0)" class="ribbon-btn" title="Reset to Actual 100% Size (Ctrl 0)">
+                            <i class="fa-solid fa-expand text-sm mb-0.5"></i>
+                            <span>100%</span>
+                        </button>
+                        <button onclick="zoomViewerFitWidth()" class="ribbon-btn" title="Fit Document to Window Width">
+                            <i class="fa-solid fa-arrows-left-right text-sm mb-0.5"></i>
+                            <span>Fit Width</span>
+                        </button>
+                        <button onclick="zoomViewerFitPage()" class="ribbon-btn" title="Fit Entire Page in Window">
+                            <i class="fa-solid fa-compress text-sm mb-0.5"></i>
+                            <span>Fit Page</span>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-0.5 border-r border-slate-200 dark:border-slate-700 pr-2">
+                        <button onclick="rotateViewerCurrentPage(90)" class="ribbon-btn" title="Rotate Current Page 90° Clockwise">
+                            <i class="fa-solid fa-rotate-right text-sm mb-0.5"></i>
+                            <span>Rotate</span>
+                        </button>
+                        <button onclick="undoViewerAction()" class="ribbon-btn" title="Undo (Ctrl Z)">
+                            <i class="fa-solid fa-rotate-left text-sm mb-0.5"></i>
+                            <span>Undo</span>
+                        </button>
+                        <button onclick="redoViewerAction()" class="ribbon-btn" title="Redo (Ctrl Y)">
+                            <i class="fa-solid fa-arrow-rotate-right text-sm mb-0.5"></i>
+                            <span>Redo</span>
+                        </button>
+                        <button onclick="window.print()" class="ribbon-btn" title="Print Current Document">
+                            <i class="fa-solid fa-print text-sm mb-0.5"></i>
+                            <span>Print</span>
+                        </button>
+                    </div>
+
+                    <!-- Quick Markup Jumpers in Home -->
+                    <div class="flex items-center gap-0.5">
+                        <button id="tool-home-textbox" onclick="setActiveViewerTool('textbox')" class="ribbon-btn" title="Insert Text Box (T)">
+                            <i class="fa-solid fa-font text-sm mb-0.5 text-blue-600"></i>
+                            <span>Text Box</span>
+                        </button>
+                        <button id="tool-home-callout" onclick="setActiveViewerTool('callout')" class="ribbon-btn" title="Leader Arrow Callout (C)">
+                            <i class="fa-solid fa-comment-dots text-sm mb-0.5 text-indigo-600"></i>
+                            <span>Callout</span>
+                        </button>
+                        <button id="tool-home-pen" onclick="setActiveViewerTool('pen')" class="ribbon-btn" title="Freehand Pen (P)">
+                            <i class="fa-solid fa-pen-nib text-sm mb-0.5 text-amber-600"></i>
+                            <span>Pen</span>
+                        </button>
+                        <button id="tool-home-cloud" onclick="setActiveViewerTool('cloud')" class="ribbon-btn" title="Revision Cloud (K)">
+                            <i class="fa-solid fa-cloud text-sm mb-0.5 text-red-600"></i>
+                            <span>Cloud</span>
+                        </button>
+                        <button id="tool-home-measure" onclick="setActiveViewerTool('measure-length')" class="ribbon-btn" title="Linear Distance Measure (D)">
+                            <i class="fa-solid fa-ruler-horizontal text-sm mb-0.5 text-emerald-600"></i>
+                            <span>Measure</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Ribbon Tab: ANNOTATE -->
+                <div id="ribbon-panel-markup" class="hidden flex items-center gap-1">
+                    <button id="tool-textbox" onclick="setActiveViewerTool('textbox')" class="ribbon-btn" title="Text Box (T)">
+                        <i class="fa-solid fa-font text-sm mb-0.5"></i>
+                        <span>Text Box</span>
+                    </button>
+                    <button id="tool-callout" onclick="setActiveViewerTool('callout')" class="ribbon-btn" title="Callout with Leader Arrow (C)">
+                        <i class="fa-solid fa-comment-dots text-sm mb-0.5"></i>
+                        <span>Callout</span>
+                    </button>
+                    <button id="tool-note" onclick="setActiveViewerTool('note')" class="ribbon-btn" title="Sticky Note Popup (N)">
+                        <i class="fa-solid fa-note-sticky text-sm mb-0.5"></i>
+                        <span>Note</span>
+                    </button>
+                    <div class="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+                    <button id="tool-pen" onclick="setActiveViewerTool('pen')" class="ribbon-btn" title="Freehand Pen (P)">
+                        <i class="fa-solid fa-pen-nib text-sm mb-0.5"></i>
+                        <span>Pen</span>
+                    </button>
+                    <button id="tool-highlighter" onclick="setActiveViewerTool('highlighter')" class="ribbon-btn" title="Highlighter (G)">
+                        <i class="fa-solid fa-highlighter text-sm mb-0.5"></i>
+                        <span>Highlight</span>
+                    </button>
+                    <button id="tool-eraser" onclick="setActiveViewerTool('eraser')" class="ribbon-btn" title="Eraser (E) - Click markup to delete">
+                        <i class="fa-solid fa-eraser text-sm mb-0.5"></i>
+                        <span>Eraser</span>
+                    </button>
+                </div>
+
+                <!-- Ribbon Tab: SHAPES -->
+                <div id="ribbon-panel-shapes" class="hidden flex items-center gap-1">
+                    <button id="tool-rect" onclick="setActiveViewerTool('rect')" class="ribbon-btn" title="Rectangle / Box (R)">
+                        <i class="fa-regular fa-square text-sm mb-0.5"></i>
+                        <span>Rectangle</span>
+                    </button>
+                    <button id="tool-circle" onclick="setActiveViewerTool('circle')" class="ribbon-btn" title="Circle / Ellipse (O)">
+                        <i class="fa-regular fa-circle text-sm mb-0.5"></i>
+                        <span>Circle</span>
+                    </button>
+                    <button id="tool-line" onclick="setActiveViewerTool('line')" class="ribbon-btn" title="Straight Line (L)">
+                        <i class="fa-solid fa-minus text-sm mb-0.5"></i>
+                        <span>Line</span>
+                    </button>
+                    <button id="tool-arrow" onclick="setActiveViewerTool('arrow')" class="ribbon-btn" title="Arrow (A)">
+                        <i class="fa-solid fa-arrow-right text-sm mb-0.5"></i>
+                        <span>Arrow</span>
+                    </button>
+                    <div class="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+                    <button id="tool-cloud" onclick="setActiveViewerTool('cloud')" class="ribbon-btn" title="Revision Cloud (K)">
+                        <i class="fa-solid fa-cloud text-sm mb-0.5"></i>
+                        <span>Rev Cloud</span>
+                    </button>
+                    <button id="tool-polyline" onclick="setActiveViewerTool('polyline')" class="ribbon-btn" title="Connected Polyline (Click points, Enter to finish)">
+                        <i class="fa-solid fa-draw-polygon text-sm mb-0.5"></i>
+                        <span>Polyline</span>
+                    </button>
+                    <button id="tool-polygon" onclick="setActiveViewerTool('polygon')" class="ribbon-btn" title="Closed Polygon Shape">
+                        <i class="fa-solid fa-shapes text-sm mb-0.5"></i>
+                        <span>Polygon</span>
+                    </button>
+                </div>
+
+                <!-- Ribbon Tab: MEASURE -->
+                <div id="ribbon-panel-measure" class="hidden flex items-center gap-1">
+                    <button onclick="openModal('modal-calibrate-scale')" class="ribbon-btn border-brand-300 dark:border-brand-700 bg-brand-50/50 dark:bg-brand-950/40" title="Calibrate Drawing Scale (e.g. 1/4 inch = 1 foot or custom dimension)">
+                        <i class="fa-solid fa-drafting-compass text-sm mb-0.5 text-brand-600 dark:text-brand-400"></i>
+                        <span class="font-bold text-brand-700 dark:text-brand-300">Calibrate</span>
+                    </button>
+                    <div class="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+                    <button id="tool-measure-length" onclick="setActiveViewerTool('measure-length')" class="ribbon-btn" title="Linear Distance Measure (D)">
+                        <i class="fa-solid fa-ruler-horizontal text-sm mb-0.5"></i>
+                        <span>Length</span>
+                    </button>
+                    <button id="tool-measure-area" onclick="setActiveViewerTool('measure-area')" class="ribbon-btn" title="Area / Square Footage Measure (S)">
+                        <i class="fa-solid fa-chart-area text-sm mb-0.5"></i>
+                        <span>Area</span>
+                    </button>
+                    <button id="tool-measure-perimeter" onclick="setActiveViewerTool('measure-perimeter')" class="ribbon-btn" title="Perimeter / Continuous Distance Measure">
+                        <i class="fa-solid fa-route text-sm mb-0.5"></i>
+                        <span>Perimeter</span>
+                    </button>
+                    <button id="tool-count" onclick="setActiveViewerTool('count')" class="ribbon-btn" title="Count / Punch List Marker (#)">
+                        <i class="fa-solid fa-list-ol text-sm mb-0.5"></i>
+                        <span>Count</span>
+                    </button>
+                </div>
+
+                <!-- Ribbon Tab: STAMPS & SIGN -->
+                <div id="ribbon-panel-stamps" class="hidden flex items-center gap-1">
+                    <button onclick="prepareStampPlacement('APPROVED')" class="ribbon-btn text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40" title="Place APPROVED Stamp">
+                        <i class="fa-solid fa-circle-check text-sm mb-0.5"></i>
+                        <span>Approved</span>
+                    </button>
+                    <button onclick="prepareStampPlacement('REJECTED')" class="ribbon-btn text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40" title="Place REJECTED Stamp">
+                        <i class="fa-solid fa-circle-xmark text-sm mb-0.5"></i>
+                        <span>Rejected</span>
+                    </button>
+                    <button onclick="prepareStampPlacement('REVISED')" class="ribbon-btn text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40" title="Place REVISED Stamp">
+                        <i class="fa-solid fa-pen-to-square text-sm mb-0.5"></i>
+                        <span>Revised</span>
+                    </button>
+                    <button onclick="prepareStampPlacement('DRAFT')" class="ribbon-btn text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40" title="Place DRAFT Stamp">
+                        <i class="fa-solid fa-triangle-exclamation text-sm mb-0.5"></i>
+                        <span>Draft</span>
+                    </button>
+                    <div class="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+                    <button onclick="openModal('modal-custom-stamp')" class="ribbon-btn" title="Create Custom Rubber Stamp with Author & Date">
+                        <i class="fa-solid fa-stamp text-sm mb-0.5 text-purple-600"></i>
+                        <span>Custom</span>
+                    </button>
+                    <button onclick="openModal('modal-signature')" class="ribbon-btn" title="Draw or Insert Digital Signature">
+                        <i class="fa-solid fa-signature text-sm mb-0.5 text-indigo-600"></i>
+                        <span>Signature</span>
+                    </button>
+                </div>
+
+                <!-- Ribbon Tab: OVERLAY COMPARE (ALL IN ONE PLACE) -->
+                <div id="ribbon-panel-compare" class="hidden flex items-center gap-1.5">
+                    <div class="flex items-center gap-0.5 border-r border-slate-200 dark:border-slate-700 pr-2">
+                        <button onclick="compareActiveDocWithRevision()" class="ribbon-btn text-sky-600 font-semibold" title="Pre-load Active Document as Document 1 (Original) for Comparison">
+                            <i class="fa-solid fa-code-compare text-sm mb-0.5"></i>
+                            <span>Compare Doc</span>
+                        </button>
+                        <button onclick="switchAppMode('compare')" class="ribbon-btn" title="Open Full Overlay Comparison Workspace">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-sm mb-0.5 text-brand-600"></i>
+                            <span>Open Compare</span>
+                        </button>
+                    </div>
+
+                    <!-- Overlay Markups Option (With Markups / Without Markups) -->
+                    <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-750 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase mr-1">Overlay Markups:</span>
+                        <button id="ribbon-btn-with-markups" onclick="setOverlayMarkupsOption(true)" class="px-2 py-0.5 text-[11px] font-bold rounded bg-sky-600 text-white shadow-xs transition" title="Compare drawing including all revision clouds, text & comments">
+                            <i class="fa-solid fa-stamp text-[10px] mr-1"></i> With Markups
+                        </button>
+                        <button id="ribbon-btn-without-markups" onclick="setOverlayMarkupsOption(false)" class="px-2 py-0.5 text-[11px] font-semibold rounded text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-650 transition" title="Compare pure base CAD vectors only (ignores markup annotations)">
+                            <i class="fa-solid fa-drafting-compass text-[10px] mr-1"></i> Without Markups
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-0.5 border-l border-slate-200 dark:border-slate-700 pl-2">
+                        <button onclick="switchAppMode('compare'); setTimeout(() => toggleSideBySide(), 100);" class="ribbon-btn" title="Side-by-Side Split View">
+                            <i class="fa-solid fa-table-columns text-sm mb-0.5 text-indigo-600"></i>
+                            <span>Split View</span>
+                        </button>
+                        <button onclick="switchAppMode('compare'); setTimeout(() => toggleDifferenceMode(), 100);" class="ribbon-btn" title="Highlight Vector Differences">
+                            <i class="fa-solid fa-circle-half-stroke text-sm mb-0.5 text-amber-600"></i>
+                            <span>Difference</span>
+                        </button>
+                        <button onclick="switchAppMode('compare'); setTimeout(() => toggleBlink(), 100);" class="ribbon-btn" title="Blink Comparison Layers">
+                            <i class="fa-solid fa-lightbulb text-sm mb-0.5 text-emerald-600"></i>
+                            <span>Blink</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Ribbon Tab: PAGE MANAGER (ALL IN ONE PLACE) -->
+                <div id="ribbon-panel-pages" class="hidden flex items-center gap-1.5">
+                    <div class="flex items-center gap-0.5 border-r border-slate-200 dark:border-slate-700 pr-2">
+                        <button onclick="rotateViewerCurrentPage(90)" class="ribbon-btn" title="Rotate Current Page 90° Clockwise">
+                            <i class="fa-solid fa-rotate-right text-sm mb-0.5 text-brand-600"></i>
+                            <span>Rotate CW</span>
+                        </button>
+                        <button onclick="rotateViewerCurrentPage(270)" class="ribbon-btn" title="Rotate Current Page 90° Counter-Clockwise">
+                            <i class="fa-solid fa-rotate-left text-sm mb-0.5 text-brand-600"></i>
+                            <span>Rotate CCW</span>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-0.5 border-r border-slate-200 dark:border-slate-700 pr-2">
+                        <button onclick="openInsertBlankPageModal()" class="ribbon-btn" title="Insert Blank Page (Choose Page Size, Orientation, Grid & Placement)">
+                            <i class="fa-solid fa-file-circle-plus text-sm mb-0.5 text-emerald-600"></i>
+                            <span>Insert Blank</span>
+                        </button>
+                        <button onclick="promptInsertViewerFile()" class="ribbon-btn" title="Insert External PDF File">
+                            <i class="fa-solid fa-file-import text-sm mb-0.5 text-indigo-600"></i>
+                            <span>Insert File</span>
+                        </button>
+                        <button onclick="extractViewerPages()" class="ribbon-btn" title="Extract Current Page or Range to New PDF">
+                            <i class="fa-solid fa-file-export text-sm mb-0.5 text-blue-600"></i>
+                            <span>Extract</span>
+                        </button>
+                        <button onclick="deleteViewerCurrentPage()" class="ribbon-btn text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40" title="Delete Current Page from Document">
+                            <i class="fa-solid fa-trash-can text-sm mb-0.5"></i>
+                            <span>Delete Page</span>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-0.5">
+                        <button onclick="flattenViewerMarkups()" class="ribbon-btn" title="Flatten All Markups into Base PDF Vectors (Permanent)">
+                            <i class="fa-solid fa-stamp text-sm mb-0.5 text-amber-600"></i>
+                            <span>Flatten</span>
+                        </button>
+                        <button onclick="openPageManagerWithCurrentDoc()" class="ribbon-btn text-brand-600 font-semibold" title="Launch Full Visual Grid Page Manager">
+                            <i class="fa-solid fa-grip text-sm mb-0.5"></i>
+                            <span>Full Grid</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Ribbon Tab: DOCUMENT BINDER (ALL IN ONE PLACE) -->
+                <div id="ribbon-panel-binder" class="hidden flex items-center gap-1.5">
+                    <div class="flex items-center gap-0.5 border-r border-slate-200 dark:border-slate-700 pr-2">
+                        <button onclick="addCurrentDocToBinder()" class="ribbon-btn text-emerald-600 font-semibold" title="Add Current Open Document to Binder Queue">
+                            <i class="fa-solid fa-file-circle-plus text-sm mb-0.5"></i>
+                            <span>Add Active Doc</span>
+                        </button>
+                        <button onclick="document.getElementById('binder-file-input').click()" class="ribbon-btn" title="Add Additional PDF Files to Binder Queue">
+                            <i class="fa-solid fa-folder-plus text-sm mb-0.5 text-brand-600"></i>
+                            <span>+ Add PDFs</span>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-0.5">
+                        <button onclick="switchAppMode('binder')" class="ribbon-btn text-sky-600 font-semibold" title="Open Full Binder Re-order & Merge Workspace">
+                            <i class="fa-solid fa-layer-group text-sm mb-0.5"></i>
+                            <span>Open Binder</span>
+                        </button>
+                        <button onclick="generatePDFBinder()" class="ribbon-btn text-emerald-600 font-bold" title="Merge All Queued PDFs and Download">
+                            <i class="fa-solid fa-download text-sm mb-0.5"></i>
+                            <span>Merge & Export</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUICK TOOL CONTEXT SUB-BAR (Stroke, Fill, Size, Active Tool Hint) -->
+        <div class="bg-slate-50 dark:bg-slate-850 border-b border-slate-200 dark:border-slate-700 px-3 py-1 flex items-center justify-between text-xs select-none">
+            <!-- Left: Active Tool Indicator & Quick Swatches -->
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-200">
+                    <span id="active-tool-badge" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-brand-100 dark:bg-brand-900/60 text-brand-700 dark:text-brand-300">
+                        SELECT
+                    </span>
+                    <span id="active-tool-hint" class="text-slate-500 dark:text-slate-400 text-[11px] hidden sm:inline">
+                        Click markup to select, drag to move, drag handles to resize
+                    </span>
+                </div>
+
+                <!-- Vertical Divider -->
+                <div class="h-4 w-px bg-slate-300 dark:bg-slate-600 hidden sm:block"></div>
+
+                <!-- Quick Color Palette Swatches -->
+                <div class="flex items-center gap-1.5" title="Quick Color Palette">
+                    <span class="text-slate-400 text-[11px] hidden md:inline">Color:</span>
+                    <div class="flex items-center gap-1">
+                        <button onclick="setViewerQuickColor('#ef4444')" class="swatch-btn bg-red-500" title="Red"></button>
+                        <button onclick="setViewerQuickColor('#10b981')" class="swatch-btn bg-emerald-500" title="Green"></button>
+                        <button onclick="setViewerQuickColor('#0e87eb')" class="swatch-btn bg-blue-500 active" title="Blue"></button>
+                        <button onclick="setViewerQuickColor('#f59e0b')" class="swatch-btn bg-amber-500" title="Amber"></button>
+                        <button onclick="setViewerQuickColor('#8b5cf6')" class="swatch-btn bg-purple-500" title="Purple"></button>
+                        <button onclick="setViewerQuickColor('#0f172a')" class="swatch-btn bg-slate-900" title="Black"></button>
+                    </div>
+                    <input type="color" id="quick-color-picker" value="#0e87eb" onchange="setViewerQuickColor(this.value)" class="w-5 h-5 rounded cursor-pointer border-0 p-0 ml-0.5" title="Custom Color Picker">
+                </div>
+
+                <!-- Stroke Width Quick Selector -->
+                <div class="hidden lg:flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">
+                    <span>Width:</span>
+                    <select id="quick-stroke-width" onchange="setViewerQuickWidth(this.value)" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded px-1.5 py-0.5 text-xs text-slate-700 dark:text-slate-200">
+                        <option value="1">1 px</option>
+                        <option value="2" selected>2 px</option>
+                        <option value="3">3 px</option>
+                        <option value="5">5 px</option>
+                        <option value="8">8 px</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Right: Active Scale Calibration Readout & Quick Action -->
+            <div class="flex items-center gap-2">
+                <div id="viewer-scale-badge" class="flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-[11px] font-mono border border-emerald-200 dark:border-emerald-800" title="Active measurement scale calibration">
+                    <i class="fa-solid fa-ruler text-[10px]"></i>
+                    <span id="viewer-scale-label">Scale: 1/4" = 1'-0"</span>
+                </div>
+                <button onclick="openModal('modal-calibrate-scale')" class="text-brand-600 dark:text-brand-400 hover:underline text-[11px] font-medium" title="Change drawing scale">
+                    Change
+                </button>
+            </div>
+        </div>
+
+        <!-- MAIN 3-COLUMN WORKSPACE: (Sidebar, Viewport, Inspector) -->
+        <div class="flex-1 flex min-h-0 relative">
+            <!-- LEFT COLLAPSIBLE SIDEBAR -->
+            <div id="viewer-sidebar" class="w-64 flex-none border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex flex-col z-20 transition-all duration-150">
+                <!-- Sidebar Top Tabs -->
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-2 py-1.5 bg-slate-50 dark:bg-slate-850">
+                    <div class="flex items-center gap-1">
+                        <button id="sidebar-tab-pages" onclick="setViewerSidebarTab('pages')" class="px-2 py-1 text-xs font-semibold text-brand-600 dark:text-brand-400 rounded bg-white dark:bg-slate-800 shadow-xs" title="Page Thumbnails">
+                            <i class="fa-solid fa-images mr-1"></i> Pages
+                        </button>
+                        <button id="sidebar-tab-markups" onclick="setViewerSidebarTab('markups')" class="px-2 py-1 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 rounded" title="Markups List & Takeoffs">
+                            <i class="fa-solid fa-list-check mr-1"></i> Markups
+                        </button>
+                        <button id="sidebar-tab-bookmarks" onclick="setViewerSidebarTab('bookmarks')" class="px-2 py-1 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 rounded" title="PDF Bookmarks Outline">
+                            <i class="fa-solid fa-bookmark mr-1"></i> Outline
+                        </button>
+                        <button id="sidebar-tab-search" onclick="setViewerSidebarTab('search')" class="px-2 py-1 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 rounded" title="Search Text in PDF">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                    <button onclick="toggleViewerSidebar()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded" title="Collapse Sidebar">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- Sidebar Content: PAGES / THUMBNAILS -->
+                <div id="sidebar-panel-pages" class="flex-1 overflow-y-auto p-3 space-y-3">
+                    <div id="viewer-thumbnails-container" class="space-y-3">
+                        <div class="text-center py-8 text-xs text-slate-400">
+                            No PDF loaded.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Content: MARKUPS LIST / TAKEOFF TABLE -->
+                <div id="sidebar-panel-markups" class="hidden flex-1 flex flex-col min-h-0">
+                    <div class="p-2 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-semibold text-slate-700 dark:text-slate-200">Markups</span>
+                            <span id="markups-count-badge" class="px-1.5 py-0.2 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-mono text-[10px]">0</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button onclick="exportMarkupsToCSV()" class="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300" title="Export Takeoffs to CSV Spreadsheet">
+                                <i class="fa-solid fa-file-csv text-xs"></i>
+                            </button>
+                            <button onclick="exportMarkupsToJSON()" class="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300" title="Export Markups to JSON">
+                                <i class="fa-solid fa-code text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Filter & Search markups -->
+                    <div class="p-2 border-b border-slate-200 dark:border-slate-700">
+                        <input type="text" id="markups-search-input" onkeyup="filterMarkupsList(this.value)" placeholder="Search markups..." class="w-full text-xs px-2 py-1 rounded bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100">
+                    </div>
+                    <!-- Markups List Items -->
+                    <div id="viewer-markups-list" class="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700/50 text-xs">
+                        <div class="p-4 text-center text-slate-400">
+                            No annotations or measurements yet.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Content: BOOKMARKS / OUTLINE -->
+                <div id="sidebar-panel-bookmarks" class="hidden flex-1 overflow-y-auto p-2">
+                    <div id="viewer-bookmarks-tree" class="space-y-1 text-xs text-slate-700 dark:text-slate-300">
+                        <div class="p-4 text-center text-slate-400">
+                            No bookmarks in document.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Content: IN-DOCUMENT SEARCH -->
+                <div id="sidebar-panel-search" class="hidden flex-1 flex flex-col p-2 space-y-2">
+                    <div class="flex items-center gap-1">
+                        <input type="text" id="pdf-search-input" placeholder="Find text..." class="flex-1 text-xs px-2 py-1.5 rounded bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100" onkeydown="if(event.key==='Enter') executePdfSearch()">
+                        <button onclick="executePdfSearch()" class="px-2.5 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded text-xs">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-slate-500">
+                        <span id="search-results-count">0 matches</span>
+                        <div class="flex items-center gap-1">
+                            <button onclick="navigateSearchResult(-1)" class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300">Prev</button>
+                            <button onclick="navigateSearchResult(1)" class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300">Next</button>
+                        </div>
+                    </div>
+                    <div id="search-results-list" class="flex-1 overflow-y-auto space-y-1 text-xs"></div>
+                </div>
+            </div>
+
+            <!-- COLLAPSED SIDEBAR RESTORATION STRIP (Hidden when sidebar open) -->
+            <div id="viewer-sidebar-restore" class="hidden flex-none w-6 border-r border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 flex flex-col items-center py-2 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800" onclick="toggleViewerSidebar()" title="Expand Sidebar">
+                <i class="fa-solid fa-chevron-right text-xs text-slate-400 mb-2"></i>
+                <span class="text-[10px] font-semibold text-slate-500 transform -rotate-90 whitespace-nowrap mt-4">SIDEBAR</span>
+            </div>
+
+            <!-- CENTER VIEWPORT & DOCUMENT CANVAS -->
+            <div id="viewer-viewport" class="pdf-viewport flex-1 h-full relative" ondragover="event.preventDefault()" ondrop="handleViewerFileDrop(event)">
+                <!-- EMPTY STATE (Shown when no PDF is loaded) -->
+                <div id="viewer-empty-state" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center select-none bg-slate-900/10 backdrop-blur-xs">
+                    <div class="max-w-md w-full p-8 rounded-2xl bg-white dark:bg-slate-800 shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col items-center">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white text-3xl shadow-lg shadow-brand-500/30 mb-4 animate-bounce">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-1">Open PDF Document</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">
+                            Review drawings, add revision clouds, measure lengths & areas, apply stamps, and compare versions completely offline.
+                        </p>
+
+                        <div class="w-full space-y-2.5">
+                            <label for="viewer-file-input" class="w-full py-2.5 px-4 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm shadow-md shadow-brand-600/25 transition flex items-center justify-center gap-2 cursor-pointer select-none">
+                                <i class="fa-solid fa-folder-open"></i>
+                                <span>Browse Local PDF File</span>
+                            </label>
+
+                            <button type="button" onclick="loadSampleCadDocument()" class="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold text-sm border border-slate-300 dark:border-slate-600 transition flex items-center justify-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-drafting-compass text-brand-600 dark:text-brand-400"></i>
+                                <span>Load Architectural CAD Sample Plan</span>
+                            </button>
+                        </div>
+
+                        <div class="mt-6 pt-6 border-t border-slate-150 dark:border-slate-700/60 w-full flex items-center justify-around text-slate-400 text-xs">
+                            <span class="flex items-center gap-1"><i class="fa-solid fa-lock text-emerald-500"></i> 100% Private</span>
+                            <span class="flex items-center gap-1"><i class="fa-solid fa-wifi-slash text-brand-500"></i> Zero Cloud</span>
+                            <span class="flex items-center gap-1"><i class="fa-solid fa-bolt text-amber-500"></i> High Performance</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MULTI-PAGE CONTAINER -->
+                <div id="viewer-pages-container" class="relative min-h-full py-8 flex flex-col items-center">
+                    <!-- Dynamic PDF Pages will be appended here -->
+                </div>
+
+                <!-- FLOATING VIEWPORT ZOOM CONTROLS (Bottom Right) -->
+                <div class="absolute bottom-4 right-4 z-30 flex items-center gap-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md px-2 py-1 rounded-full shadow-lg border border-slate-200 dark:border-slate-700 text-xs select-none">
+                    <button onclick="zoomViewerOut()" class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300" title="Zoom Out">
+                        <i class="fa-solid fa-minus text-xs"></i>
+                    </button>
+                    <span id="floating-zoom-level" class="font-mono font-bold text-slate-700 dark:text-slate-200 px-1 min-w-[3.5rem] text-center">100%</span>
+                    <button onclick="zoomViewerIn()" class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300" title="Zoom In">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                    </button>
+                    <div class="h-4 w-px bg-slate-300 dark:bg-slate-600 mx-0.5"></div>
+                    <button onclick="zoomViewerFitWidth()" class="px-2 py-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium text-[11px]" title="Fit Width">
+                        Fit W
+                    </button>
+                    <button onclick="zoomViewerFitPage()" class="px-2 py-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium text-[11px]" title="Fit Page">
+                        Fit P
+                    </button>
+                </div>
+            </div>
+
+            <!-- RIGHT COLLAPSIBLE INSPECTOR / PROPERTIES PANEL -->
+            <div id="viewer-inspector" class="w-72 flex-none border-l border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex flex-col z-20 transition-all duration-150">
+                <!-- Inspector Header -->
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-3 py-2 bg-slate-50 dark:bg-slate-850">
+                    <div class="flex items-center gap-1.5 font-semibold text-xs text-slate-700 dark:text-slate-200">
+                        <i class="fa-solid fa-sliders text-brand-600"></i>
+                        <span id="inspector-title">Properties</span>
+                    </div>
+                    <button onclick="toggleViewerInspector()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded" title="Collapse Inspector">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- Inspector Dynamic Form Controls -->
+                <div class="flex-1 overflow-y-auto p-3 space-y-4 text-xs">
+                    <!-- Section: Appearance -->
+                    <div class="space-y-3">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Appearance</span>
+
+                        <!-- Stroke Color & Width -->
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-slate-500 dark:text-slate-400 text-[11px] block mb-1">Stroke Color</label>
+                                <div class="flex items-center gap-1">
+                                    <input type="color" id="prop-stroke-color" value="#ef4444" onchange="updateSelectedMarkupProperty('strokeColor', this.value)" class="w-8 h-8 rounded border border-slate-300 dark:border-slate-600 cursor-pointer p-0.5">
+                                    <input type="text" id="prop-stroke-color-text" value="#ef4444" onchange="updateSelectedMarkupProperty('strokeColor', this.value)" class="w-full text-xs font-mono px-1.5 py-1 rounded bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-slate-500 dark:text-slate-400 text-[11px] block mb-1">Stroke Width</label>
+                                <select id="prop-stroke-width" onchange="updateSelectedMarkupProperty('strokeWidth', parseFloat(this.value))" class="w-full text-xs px-2 py-1.5 rounded bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200">
+                                    <option value="1">1 px</option>
+                                    <option value="2">2 px</option>
+                                    <option value="3">3 px</option>
+                                    <option value="4">4 px</option>
+                                    <option value="6">6 px</option>
+                                    <option value="8">8 px</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Fill Color & Fill Opacity -->
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-slate-500 dark:text-slate-400 text-[11px] block mb-1">Fill Color</label>
+                                <div class="flex items-center gap-1">
+                                    <input type="color" id="prop-fill-color" value="#ffffff" onchange="updateSelectedMarkupProperty('fillColor', this.value)" class="w-8 h-8 rounded border border-slate-300 dark:border-slate-600 cursor-pointer p-0.5">
+                                    <button onclick="updateSelectedMarkupProperty('fillColor', 'transparent')" class="text-[10px] text-slate-500 hover:underline">None</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-slate-500 dark:text-slate-400 text-[11px] block mb-1">Fill Opacity</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="range" id="prop-fill-opacity" min="0" max="1" step="0.05" value="0.2" oninput="updateSelectedMarkupProperty('fillOpacity', parseFloat(this.value)); document.getElementById('prop-fill-opacity-val').innerText = Math.round(this.value*100)+'%'" class="w-full accent-brand-600">
+                                    <span id="prop-fill-opacity-val" class="font-mono text-[10px] text-slate-500 w-8 text-right">20%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Line Style (Solid, Dash, Dot) -->
+                        <div>
+                            <label class="text-slate-500 dark:text-slate-400 text-[11px] block mb-1">Line Style</label>
+                            <select id="prop-line-style" onchange="updateSelectedMarkupProperty('lineStyle', this.value)" class="w-full text-xs px-2 py-1.5 rounded bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200">
+                                <option value="solid">Solid ──────</option>
+                                <option value="dashed">Dashed ─ ─ ─</option>
+                                <option value="dotted">Dotted • • • •</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Section: Typography (Shown when text / callout selected) -->
+                    <div id="inspector-typography-section" class="space-y-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Typography</span>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-slate-500 dark:text-slate-400 text-[11px] block mb-1">Font Size</label>
+                                <select id="prop-font-size" onchange="updateSelectedMarkupProperty('fontSize', parseInt(this.value))" class="w-full text-xs px-2 py-1 rounded bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600">
+                                    <option value="10">10 pt</option>
+                                    <option value="12" selected>12 pt</option>
+                                    <option value="14">14 pt</option>
+                                    <option value="16">16 pt</option>
+                                    <option value="20">20 pt</option>
+                                    <option value="24">24 pt</option>
+                                    <option value="32">32 pt</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-slate-500 dark:text-slate-400 text-[11px] block mb-1">Text Color</label>
+                                <input type="color" id="prop-font-color" value="#0f172a" onchange="updateSelectedMarkupProperty('textColor', this.value)" class="w-full h-7 rounded border border-slate-300 dark:border-slate-600 cursor-pointer p-0.5">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-slate-500 dark:text-slate-400 text-[11px] block mb-1">Text Content</label>
+                            <textarea id="prop-text-content" rows="2" oninput="updateSelectedMarkupProperty('text', this.value)" placeholder="Enter text..." class="w-full text-xs p-2 rounded bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-100"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Section: Actions (Order, Duplicate, Delete) -->
+                    <div class="space-y-2 pt-3 border-t border-slate-200 dark:border-slate-700">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Arrange & Actions</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="bringSelectedMarkupToFront()" class="py-1 px-2 rounded bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-medium">
+                                <i class="fa-solid fa-arrow-up-to-line mr-1"></i> Bring Front
+                            </button>
+                            <button onclick="sendSelectedMarkupToBack()" class="py-1 px-2 rounded bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-medium">
+                                <i class="fa-solid fa-arrow-down-to-line mr-1"></i> Send Back
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="duplicateSelectedMarkup()" class="py-1 px-2 rounded bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-medium">
+                                <i class="fa-solid fa-copy mr-1"></i> Duplicate
+                            </button>
+                            <button onclick="deleteSelectedMarkup()" class="py-1 px-2 rounded bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400 text-xs font-medium border border-red-200 dark:border-red-800">
+                                <i class="fa-solid fa-trash mr-1"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLLAPSED INSPECTOR RESTORATION STRIP (Hidden when inspector open) -->
+            <div id="viewer-inspector-restore" class="hidden flex-none w-6 border-l border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 flex flex-col items-center py-2 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800" onclick="toggleViewerInspector()" title="Expand Inspector">
+                <i class="fa-solid fa-chevron-left text-xs text-slate-400 mb-2"></i>
+                <span class="text-[10px] font-semibold text-slate-500 transform rotate-90 whitespace-nowrap mt-4">INSPECTOR</span>
+            </div>
+        </div>
+
+        <!-- VIEWER STATUS BAR (Bottom) -->
+        <div class="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 px-3 py-1 flex items-center justify-between text-xs select-none flex-none">
+            <!-- Left: Page Navigator -->
+            <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                <button onclick="goToViewerPage(1)" class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="First Page">
+                    <i class="fa-solid fa-backward-step text-xs"></i>
+                </button>
+                <button onclick="navigateViewerPage(-1)" class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Previous Page">
+                    <i class="fa-solid fa-chevron-left text-xs"></i>
+                </button>
+                <div class="flex items-center gap-1">
+                    <input type="number" id="viewer-page-input" value="1" min="1" max="1" onchange="goToViewerPage(parseInt(this.value))" class="w-12 text-center text-xs font-bold py-0.5 rounded bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-100">
+                    <span class="text-slate-400">/</span>
+                    <span id="viewer-page-total" class="font-bold text-slate-600 dark:text-slate-300">1</span>
+                </div>
+                <button onclick="navigateViewerPage(1)" class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Next Page">
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
+                <button onclick="goToViewerPage(viewerState.pageCount)" class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Last Page">
+                    <i class="fa-solid fa-forward-step text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Center: Sheet Size & Cursor Coordinates -->
+            <div class="hidden md:flex items-center gap-4 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                <span id="viewer-sheet-dimensions" class="flex items-center gap-1">
+                    <i class="fa-regular fa-file text-slate-400"></i> -- x --
+                </span>
+                <span id="viewer-cursor-coords" class="flex items-center gap-1">
+                    <i class="fa-solid fa-crosshairs text-slate-400"></i> X: 0.00" Y: 0.00"
+                </span>
+            </div>
+
+            <!-- Right: Zoom Quick Stepper -->
+            <div class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                <button onclick="zoomViewerOut()" class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Zoom Out">
+                    <i class="fa-solid fa-magnifying-glass-minus text-xs"></i>
+                </button>
+                <input type="range" id="viewer-zoom-slider" min="0.25" max="4.0" step="0.05" value="1.0" oninput="setViewerZoom(parseFloat(this.value))" class="w-20 sm:w-28 accent-brand-600">
+                <button onclick="zoomViewerIn()" class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Zoom In">
+                    <i class="fa-solid fa-magnifying-glass-plus text-xs"></i>
+                </button>
+                <span id="viewer-zoom-percent" class="font-mono text-xs w-12 text-right">100%</span>
+            </div>
+        </div>
+    </div>

@@ -1,0 +1,59 @@
+        <!-- ==================== MODE 3: PDF BINDER & DRAG-DROP SORTING (Feature 02) ==================== -->
+        <div id="mode-container-binder" class="flex-1 hidden flex-col min-h-0 w-full h-full bg-slate-100 dark:bg-slate-900 select-none overflow-hidden p-2 sm:p-4">
+            <!-- Header Controls -->
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 mb-3 shadow-sm flex flex-wrap justify-between items-center gap-3 flex-none">
+                <div>
+                    <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center">
+                        <i class="fa-solid fa-book-open text-primary mr-2"></i> PDF Binder & Re-order Manager
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Combine multiple PDF files, drag and drop items to sort order, and merge into a single PDF document.</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="document.getElementById('binder-file-input').click()" class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-650 text-slate-700 dark:text-slate-200 font-semibold px-3.5 py-1.5 rounded-lg text-xs flex items-center shadow-xs">
+                        <i class="fa-solid fa-plus mr-1.5 text-accentBlue"></i> Add PDF Files
+                    </button>
+                    <button onclick="clearBinderList()" class="bg-white dark:bg-slate-700 border border-red-200 dark:border-red-900 hover:bg-red-50 dark:hover:bg-red-950 text-pdfRed font-semibold px-3 py-1.5 rounded-lg text-xs flex items-center shadow-xs">
+                        <i class="fa-solid fa-trash-can mr-1.5"></i> Clear All
+                    </button>
+                    <button onclick="generatePDFBinder()" id="btn-create-binder" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2 rounded-xl text-xs flex items-center shadow-md transition">
+                        <i class="fa-solid fa-file-export mr-2"></i> Create & Download Binder PDF
+                    </button>
+                    <button onclick="switchAppMode('viewer')" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs flex items-center shadow-md transition" title="Return to Document Viewer Studio">
+                        <i class="fa-solid fa-arrow-left mr-1.5"></i> Viewer
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dropzone / Empty state when no files added -->
+            <div id="binder-empty-state" class="w-full max-w-2xl mx-auto my-auto p-8 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 text-center space-y-4">
+                <button onclick="switchAppMode('viewer')" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 text-xs font-semibold shadow-xs mb-1 inline-flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrow-left"></i> Return to Document Viewer
+                </button>
+                <div class="w-16 h-16 bg-blue-50 dark:bg-blue-950/60 text-accentBlue dark:text-brand-400 rounded-full flex items-center justify-center mx-auto text-2xl border border-blue-200 dark:border-blue-900">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">Build Your PDF Binder</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Upload multiple PDFs, re-order them using drag & drop, configure page ranges, and merge them into one document.</p>
+                </div>
+                <div class="upload-card bg-slate-50 dark:bg-slate-750 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 p-8 text-center relative cursor-pointer hover:border-brand-500 transition" id="binder-dropzone">
+                    <input type="file" id="binder-file-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="application/pdf" multiple>
+                    <i class="fa-regular fa-file-pdf text-4xl text-pdfRed mb-2"></i>
+                    <p class="font-semibold text-slate-700 dark:text-slate-200 text-sm">Drag & drop multiple PDF files here or click to browse</p>
+                    <p class="text-xs text-slate-400 mt-1">Files can be freely re-ordered after uploading</p>
+                </div>
+            </div>
+
+            <!-- Binder Files Sorting Workspace (Full Screen Flex) -->
+            <div id="binder-workspace" class="w-full flex-1 hidden flex-col min-h-0 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm overflow-hidden">
+                <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-100 dark:border-slate-700 flex-none">
+                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider" id="binder-count-label">0 Files loaded</span>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs text-slate-400"><i class="fa-solid fa-arrows-up-down mr-1"></i> Drag cards by grip handle to re-order</span>
+                    </div>
+                </div>
+                <div id="binder-items-list" class="flex-1 overflow-y-auto space-y-3 pr-2 min-h-0">
+                    <!-- Dynamically populated drag-and-drop items -->
+                </div>
+            </div>
+        </div>
